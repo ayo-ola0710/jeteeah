@@ -3,7 +3,7 @@
  * Wrapper functions for all Jeteeah smart contract operations
  */
 
-import { lineraClient, lineraQueryClient, isMockMode } from './linera-client';
+import { lineraClient, lineraQueryClient, isMockMode } from "./linera-client";
 import type {
   Direction,
   GameState,
@@ -11,7 +11,7 @@ import type {
   HighScoreResponse,
   PointsResponse,
   OperationResult,
-} from './types';
+} from "./types";
 
 /**
  * SnakeContract - Main contract interaction class
@@ -23,8 +23,8 @@ export class SnakeContract {
   static async startGame(): Promise<OperationResult> {
     try {
       if (isMockMode()) {
-        console.log('🧪 [MOCK] Starting game');
-        return { success: true, transactionId: 'mock-tx-start' };
+        console.log("🧪 [MOCK] Starting game");
+        return { success: true, transactionId: "mock-tx-start" };
       }
 
       const mutation = `
@@ -34,10 +34,14 @@ export class SnakeContract {
       `;
 
       const result = await lineraClient.request(mutation);
-      console.log('✅ Game started on blockchain');
-      return { success: true, data: result, transactionId: 'tx-start-' + Date.now() };
+      console.log("✅ Game started on blockchain");
+      return {
+        success: true,
+        data: result,
+        transactionId: "tx-start-" + Date.now(),
+      };
     } catch (error: any) {
-      console.error('❌ Failed to start game:', error);
+      console.error("❌ Failed to start game:", error);
       return { success: false, error: error.message };
     }
   }
@@ -49,7 +53,7 @@ export class SnakeContract {
     try {
       if (isMockMode()) {
         console.log(`🧪 [MOCK] Moving snake: ${direction}`);
-        return { success: true, transactionId: 'mock-tx-move' };
+        return { success: true, transactionId: "mock-tx-move" };
       }
 
       const mutation = `
@@ -63,9 +67,13 @@ export class SnakeContract {
       `;
 
       const result = await lineraClient.request(mutation);
-      return { success: true, data: result, transactionId: 'tx-move-' + Date.now() };
+      return {
+        success: true,
+        data: result,
+        transactionId: "tx-move-" + Date.now(),
+      };
     } catch (error: any) {
-      console.error('❌ Failed to move snake:', error);
+      console.error("❌ Failed to move snake:", error);
       return { success: false, error: error.message };
     }
   }
@@ -76,8 +84,8 @@ export class SnakeContract {
   static async pauseGame(): Promise<OperationResult> {
     try {
       if (isMockMode()) {
-        console.log('🧪 [MOCK] Pausing game');
-        return { success: true, transactionId: 'mock-tx-pause' };
+        console.log("🧪 [MOCK] Pausing game");
+        return { success: true, transactionId: "mock-tx-pause" };
       }
 
       const mutation = `
@@ -87,10 +95,14 @@ export class SnakeContract {
       `;
 
       const result = await lineraClient.request(mutation);
-      console.log('⏸️ Game paused on blockchain');
-      return { success: true, data: result, transactionId: 'tx-pause-' + Date.now() };
+      console.log("⏸️ Game paused on blockchain");
+      return {
+        success: true,
+        data: result,
+        transactionId: "tx-pause-" + Date.now(),
+      };
     } catch (error: any) {
-      console.error('❌ Failed to pause game:', error);
+      console.error("❌ Failed to pause game:", error);
       return { success: false, error: error.message };
     }
   }
@@ -101,8 +113,8 @@ export class SnakeContract {
   static async resumeGame(): Promise<OperationResult> {
     try {
       if (isMockMode()) {
-        console.log('🧪 [MOCK] Resuming game');
-        return { success: true, transactionId: 'mock-tx-resume' };
+        console.log("🧪 [MOCK] Resuming game");
+        return { success: true, transactionId: "mock-tx-resume" };
       }
 
       const mutation = `
@@ -112,10 +124,14 @@ export class SnakeContract {
       `;
 
       const result = await lineraClient.request(mutation);
-      console.log('▶️ Game resumed on blockchain');
-      return { success: true, data: result, transactionId: 'tx-resume-' + Date.now() };
+      console.log("▶️ Game resumed on blockchain");
+      return {
+        success: true,
+        data: result,
+        transactionId: "tx-resume-" + Date.now(),
+      };
     } catch (error: any) {
-      console.error('❌ Failed to resume game:', error);
+      console.error("❌ Failed to resume game:", error);
       return { success: false, error: error.message };
     }
   }
@@ -128,24 +144,31 @@ export class SnakeContract {
    * @param playerAddress - Wallet address to award points to
    * @param finalScore - Final score achieved in the game
    */
-  static async endGame(playerAddress: string, finalScore: number): Promise<OperationResult> {
+  static async endGame(
+    playerAddress: string,
+    finalScore: number
+  ): Promise<OperationResult> {
     try {
       if (isMockMode()) {
-        console.log(`🧪 [MOCK] Ending game for ${playerAddress} with score ${finalScore}`);
-        
+        console.log(
+          `🧪 [MOCK] Ending game for ${playerAddress} with score ${finalScore}`
+        );
+
         // In mock mode, store points per wallet address
         const pointsKey = `jeteeah_points_${playerAddress}`;
-        const currentPoints = parseInt(localStorage.getItem(pointsKey) || '0');
+        const currentPoints = parseInt(localStorage.getItem(pointsKey) || "0");
         const pointsEarned = finalScore; // 1 point per score point
         const newTotal = currentPoints + pointsEarned;
-        
+
         localStorage.setItem(pointsKey, newTotal.toString());
-        console.log(`💰 Mock: Awarded ${pointsEarned} points. Total: ${newTotal}`);
-        
-        return { 
-          success: true, 
-          transactionId: 'mock-tx-end',
-          data: { pointsEarned, totalPoints: newTotal }
+        console.log(
+          `💰 Mock: Awarded ${pointsEarned} points. Total: ${newTotal}`
+        );
+
+        return {
+          success: true,
+          transactionId: "mock-tx-end",
+          data: { pointsEarned, totalPoints: newTotal },
         };
       }
 
@@ -164,15 +187,17 @@ export class SnakeContract {
 
       const variables = { playerAddress, finalScore };
       const result = await lineraClient.request(mutation, variables);
-      console.log(`🏁 Game ended for ${playerAddress}. Score: ${finalScore}, Points awarded: ${result.pointsEarned}`);
-      
-      return { 
-        success: true, 
-        data: result, 
-        transactionId: 'tx-end-' + Date.now() 
+      console.log(
+        `🏁 Game ended for ${playerAddress}. Score: ${finalScore}, Points awarded: ${result.pointsEarned}`
+      );
+
+      return {
+        success: true,
+        data: result,
+        transactionId: "tx-end-" + Date.now(),
       };
     } catch (error: any) {
-      console.error('❌ Failed to end game:', error);
+      console.error("❌ Failed to end game:", error);
       return { success: false, error: error.message };
     }
   }
@@ -183,8 +208,8 @@ export class SnakeContract {
   static async resetGame(): Promise<OperationResult> {
     try {
       if (isMockMode()) {
-        console.log('🧪 [MOCK] Resetting game');
-        return { success: true, transactionId: 'mock-tx-reset' };
+        console.log("🧪 [MOCK] Resetting game");
+        return { success: true, transactionId: "mock-tx-reset" };
       }
 
       const mutation = `
@@ -194,10 +219,14 @@ export class SnakeContract {
       `;
 
       const result = await lineraClient.request(mutation);
-      console.log('🔄 Game reset');
-      return { success: true, data: result, transactionId: 'tx-reset-' + Date.now() };
+      console.log("🔄 Game reset");
+      return {
+        success: true,
+        data: result,
+        transactionId: "tx-reset-" + Date.now(),
+      };
     } catch (error: any) {
-      console.error('❌ Failed to reset game:', error);
+      console.error("❌ Failed to reset game:", error);
       return { success: false, error: error.message };
     }
   }
@@ -208,8 +237,8 @@ export class SnakeContract {
   static async eatFood(): Promise<OperationResult> {
     try {
       if (isMockMode()) {
-        console.log('🧪 [MOCK] Eating food');
-        return { success: true, transactionId: 'mock-tx-eat' };
+        console.log("🧪 [MOCK] Eating food");
+        return { success: true, transactionId: "mock-tx-eat" };
       }
 
       const mutation = `
@@ -219,9 +248,13 @@ export class SnakeContract {
       `;
 
       const result = await lineraClient.request(mutation);
-      return { success: true, data: result, transactionId: 'tx-eat-' + Date.now() };
+      return {
+        success: true,
+        data: result,
+        transactionId: "tx-eat-" + Date.now(),
+      };
     } catch (error: any) {
-      console.error('❌ Failed to eat food:', error);
+      console.error("❌ Failed to eat food:", error);
       return { success: false, error: error.message };
     }
   }
@@ -229,17 +262,19 @@ export class SnakeContract {
   /**
    * Get the current game state for a player
    */
-  static async getGameState(playerAddress: string): Promise<OperationResult<GameState>> {
+  static async getGameState(
+    playerAddress: string
+  ): Promise<OperationResult<GameState>> {
     try {
       if (isMockMode()) {
-        console.log('🧪 [MOCK] Getting game state');
+        console.log("🧪 [MOCK] Getting game state");
         const mockState: GameState = {
           snake_body: [
             { x: 10, y: 10 },
             { x: 10, y: 9 },
             { x: 10, y: 8 },
           ],
-          direction: 'Right' as Direction,
+          direction: "Right" as Direction,
           food_position: { x: 15, y: 7 },
           score: 0,
           is_active: true,
@@ -272,14 +307,14 @@ export class SnakeContract {
       `;
 
       const result = await lineraQueryClient.request<GameStateResponse>(query);
-      
+
       if (!result.games) {
-        return { success: false, error: 'No game state found for player' };
+        return { success: false, error: "No game state found for player" };
       }
 
       return { success: true, data: result.games };
     } catch (error: any) {
-      console.error('❌ Failed to get game state:', error);
+      console.error("❌ Failed to get game state:", error);
       return { success: false, error: error.message };
     }
   }
@@ -287,10 +322,12 @@ export class SnakeContract {
   /**
    * Get a player's high score
    */
-  static async getHighScore(playerAddress: string): Promise<OperationResult<number>> {
+  static async getHighScore(
+    playerAddress: string
+  ): Promise<OperationResult<number>> {
     try {
       if (isMockMode()) {
-        console.log('🧪 [MOCK] Getting high score');
+        console.log("🧪 [MOCK] Getting high score");
         return { success: true, data: 0 };
       }
 
@@ -303,7 +340,7 @@ export class SnakeContract {
       const result = await lineraQueryClient.request<HighScoreResponse>(query);
       return { success: true, data: result.high_scores || 0 };
     } catch (error: any) {
-      console.error('❌ Failed to get high score:', error);
+      console.error("❌ Failed to get high score:", error);
       return { success: false, error: error.message };
     }
   }
@@ -315,12 +352,14 @@ export class SnakeContract {
    * Get player's current points balance
    * @param playerAddress - Wallet address to check points for
    */
-  static async getPoints(playerAddress: string): Promise<OperationResult<number>> {
+  static async getPoints(
+    playerAddress: string
+  ): Promise<OperationResult<number>> {
     try {
       if (isMockMode()) {
         // Get points specific to this wallet address
         const pointsKey = `jeteeah_points_${playerAddress}`;
-        const points = parseInt(localStorage.getItem(pointsKey) || '0');
+        const points = parseInt(localStorage.getItem(pointsKey) || "0");
         console.log(`🧪 [MOCK] Getting points for ${playerAddress}: ${points}`);
         return { success: true, data: points };
       }
@@ -332,10 +371,13 @@ export class SnakeContract {
       `;
 
       const variables = { playerAddress };
-      const result = await lineraQueryClient.request<PointsResponse>(query, variables);
+      const result = await lineraQueryClient.request<PointsResponse>(
+        query,
+        variables
+      );
       return { success: true, data: result.points || 0 };
     } catch (error: any) {
-      console.error('❌ Failed to get points:', error);
+      console.error("❌ Failed to get points:", error);
       return { success: false, error: error.message };
     }
   }
@@ -345,27 +387,34 @@ export class SnakeContract {
    * @param playerAddress - Wallet address redeeming points
    * @param amount - Number of points to redeem
    */
-  static async redeemPoints(playerAddress: string, amount: number): Promise<OperationResult> {
+  static async redeemPoints(
+    playerAddress: string,
+    amount: number
+  ): Promise<OperationResult> {
     try {
       if (isMockMode()) {
-        console.log(`🧪 [MOCK] Redeeming ${amount} points for ${playerAddress}`);
-        
+        console.log(
+          `🧪 [MOCK] Redeeming ${amount} points for ${playerAddress}`
+        );
+
         // Deduct points from wallet-specific storage
         const pointsKey = `jeteeah_points_${playerAddress}`;
-        const currentPoints = parseInt(localStorage.getItem(pointsKey) || '0');
-        
+        const currentPoints = parseInt(localStorage.getItem(pointsKey) || "0");
+
         if (currentPoints < amount) {
-          return { success: false, error: 'Insufficient points' };
+          return { success: false, error: "Insufficient points" };
         }
-        
+
         const newTotal = currentPoints - amount;
         localStorage.setItem(pointsKey, newTotal.toString());
-        console.log(`💰 Mock: Redeemed ${amount} points. Remaining: ${newTotal}`);
-        
-        return { 
-          success: true, 
-          transactionId: 'mock-tx-redeem',
-          data: { remainingPoints: newTotal }
+        console.log(
+          `💰 Mock: Redeemed ${amount} points. Remaining: ${newTotal}`
+        );
+
+        return {
+          success: true,
+          transactionId: "mock-tx-redeem",
+          data: { remainingPoints: newTotal },
         };
       }
 
@@ -384,9 +433,13 @@ export class SnakeContract {
       const variables = { playerAddress, amount };
       const result = await lineraClient.request(mutation, variables);
       console.log(`💰 Redeemed ${amount} points for ${playerAddress}`);
-      return { success: true, data: result, transactionId: 'tx-redeem-' + Date.now() };
+      return {
+        success: true,
+        data: result,
+        transactionId: "tx-redeem-" + Date.now(),
+      };
     } catch (error: any) {
-      console.error('❌ Failed to redeem points:', error);
+      console.error("❌ Failed to redeem points:", error);
       return { success: false, error: error.message };
     }
   }
@@ -398,7 +451,7 @@ export class SnakeContract {
     try {
       if (isMockMode()) {
         console.log(`🧪 [MOCK] Adding ${amount} points`);
-        return { success: true, transactionId: 'mock-tx-add-points' };
+        return { success: true, transactionId: "mock-tx-add-points" };
       }
 
       const mutation = `
@@ -413,9 +466,13 @@ export class SnakeContract {
 
       const result = await lineraClient.request(mutation);
       console.log(`➕ Added ${amount} points`);
-      return { success: true, data: result, transactionId: 'tx-add-points-' + Date.now() };
+      return {
+        success: true,
+        data: result,
+        transactionId: "tx-add-points-" + Date.now(),
+      };
     } catch (error: any) {
-      console.error('❌ Failed to add points:', error);
+      console.error("❌ Failed to add points:", error);
       return { success: false, error: error.message };
     }
   }
@@ -423,11 +480,14 @@ export class SnakeContract {
   /**
    * Set game board parameters (width, height)
    */
-  static async setGameParameters(width: number, height: number): Promise<OperationResult> {
+  static async setGameParameters(
+    width: number,
+    height: number
+  ): Promise<OperationResult> {
     try {
       if (isMockMode()) {
         console.log(`🧪 [MOCK] Setting game parameters: ${width}x${height}`);
-        return { success: true, transactionId: 'mock-tx-params' };
+        return { success: true, transactionId: "mock-tx-params" };
       }
 
       const mutation = `
@@ -443,9 +503,13 @@ export class SnakeContract {
 
       const result = await lineraClient.request(mutation);
       console.log(`⚙️ Game parameters set: ${width}x${height}`);
-      return { success: true, data: result, transactionId: 'tx-params-' + Date.now() };
+      return {
+        success: true,
+        data: result,
+        transactionId: "tx-params-" + Date.now(),
+      };
     } catch (error: any) {
-      console.error('❌ Failed to set game parameters:', error);
+      console.error("❌ Failed to set game parameters:", error);
       return { success: false, error: error.message };
     }
   }
@@ -457,7 +521,7 @@ export class SnakeContract {
     try {
       if (isMockMode()) {
         console.log(`🧪 [MOCK] Updating food spawn rate: ${rate}`);
-        return { success: true, transactionId: 'mock-tx-spawn-rate' };
+        return { success: true, transactionId: "mock-tx-spawn-rate" };
       }
 
       const mutation = `
@@ -472,9 +536,13 @@ export class SnakeContract {
 
       const result = await lineraClient.request(mutation);
       console.log(`🍎 Food spawn rate updated: ${rate}`);
-      return { success: true, data: result, transactionId: 'tx-spawn-rate-' + Date.now() };
+      return {
+        success: true,
+        data: result,
+        transactionId: "tx-spawn-rate-" + Date.now(),
+      };
     } catch (error: any) {
-      console.error('❌ Failed to update spawn rate:', error);
+      console.error("❌ Failed to update spawn rate:", error);
       return { success: false, error: error.message };
     }
   }
@@ -485,8 +553,8 @@ export class SnakeContract {
   static async resetLeaderboard(): Promise<OperationResult> {
     try {
       if (isMockMode()) {
-        console.log('🧪 [MOCK] Resetting leaderboard');
-        return { success: true, transactionId: 'mock-tx-reset-lb' };
+        console.log("🧪 [MOCK] Resetting leaderboard");
+        return { success: true, transactionId: "mock-tx-reset-lb" };
       }
 
       const mutation = `
@@ -496,10 +564,14 @@ export class SnakeContract {
       `;
 
       const result = await lineraClient.request(mutation);
-      console.log('🗑️ Leaderboard reset');
-      return { success: true, data: result, transactionId: 'tx-reset-lb-' + Date.now() };
+      console.log("🗑️ Leaderboard reset");
+      return {
+        success: true,
+        data: result,
+        transactionId: "tx-reset-lb-" + Date.now(),
+      };
     } catch (error: any) {
-      console.error('❌ Failed to reset leaderboard:', error);
+      console.error("❌ Failed to reset leaderboard:", error);
       return { success: false, error: error.message };
     }
   }

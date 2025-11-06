@@ -18,7 +18,7 @@ const Start = () => {
   return (
     <div className="bg-[#0F172A] h-full pb-10">
       <div className="flex flex-col justify-center items-center h-30">
-        <p className="font-space text-4xl font-medium">SERPHIDA</p>
+        <p className="font-space text-4xl font-medium">JETEEAH</p>
         <div className="font-space text-[12px] flex items-center gap-15 pt-5">
           <p>Modern Snake</p>
           <li>Web 3 Powerd</li>
@@ -83,7 +83,7 @@ const Start = () => {
           </Button>
         </div>
       </div>
-      <div className="flex flex-col justify-center items-center mt-20 ">
+      <div className="flex flex-col justify-center items-center mt-15 ">
         <p className="text-sm font-space">Use arrow key or swipe to move </p>
         <div className="font-space text-[12px] flex items-center gap-12 pt-1">
           <p>Eat</p>
