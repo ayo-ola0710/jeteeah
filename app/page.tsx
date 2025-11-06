@@ -1,9 +1,9 @@
-import Landing from "./landing/page";
+import Start from "./start/page";
 
 const page = () => {
   return (
     <div>
-      <Landing />
+      <Start />
     </div>
   );
 };

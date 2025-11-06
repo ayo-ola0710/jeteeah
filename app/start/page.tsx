@@ -14,10 +14,10 @@ const Start = () => {
   const router = useRouter();
   const { highScore, totalPoints, isBlockchainMode } = useGame();
   const wallet = useLineraWallet();
-  
+
   return (
-    <div className="bg-[#0F172A] h-full">
-      <div className="flex flex-col justify-center items-center h-50">
+    <div className="bg-[#0F172A] h-full pb-10">
+      <div className="flex flex-col justify-center items-center h-30">
         <p className="font-space text-4xl font-medium">SERPHIDA</p>
         <div className="font-space text-[12px] flex items-center gap-15 pt-5">
           <p>Modern Snake</p>
@@ -43,7 +43,9 @@ const Start = () => {
             <CardContent>
               {isBlockchainMode && wallet.wallet.connected ? (
                 <>
-                  <p className="text-xl -mt-7">{totalPoints.toLocaleString()}</p>
+                  <p className="text-xl -mt-7">
+                    {totalPoints.toLocaleString()}
+                  </p>
                   <p className="text-xs text-green-400 mt-1">Blockchain</p>
                 </>
               ) : (
