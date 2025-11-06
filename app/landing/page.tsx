@@ -19,8 +19,11 @@ const Landing = () => {
         >
           Play Game
         </Button>
-        <Button className="bg-white text-black w-80 py-6 text-lg hover:bg-gray-200 cursor-pointer hover:scale-105">
-          Settings
+        <Button 
+          className="bg-white text-black w-80 py-6 text-lg hover:bg-gray-200 cursor-pointer hover:scale-105"
+          onClick={() => router.push("/leaderboard")}
+        >
+          Leaderboard
         </Button>
         <Button
           className="bg-white text-black w-80 py-6 text-lg hover:bg-gray-200 cursor-pointer hover:scale-105"

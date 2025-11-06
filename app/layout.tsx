@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Space_Grotesk, Raleway } from "next/font/google";
 import "./globals.css";
 import { GameProvider } from "./contexts/GameContext";
+import WalletButton from "@/components/WalletButton";
+import TransactionNotification from "@/components/TransactionNotification";
+import { ErrorBoundary, BlockchainErrorBoundary } from "@/components/ErrorBoundary";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -30,11 +33,17 @@ export default function RootLayout({
       <body
         className={`${spaceGrotesk.variable} ${raleway.variable} flex justify-center items-center min-h-screen bg-[#1E293B] text-white`}
       >
-        <GameProvider>
-          <div className="w-[395px] max-w-full h-[630px]  shadow-lg overflow-hidden font-sans">
-            {children}
-          </div>
-        </GameProvider>
+        <ErrorBoundary>
+          <GameProvider>
+            <BlockchainErrorBoundary>
+              <WalletButton />
+              <TransactionNotification />
+            </BlockchainErrorBoundary>
+            <div className="w-[395px] max-w-full h-[630px]  shadow-lg overflow-hidden font-sans">
+              {children}
+            </div>
+          </GameProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

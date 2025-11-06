@@ -1,6 +1,10 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from "react";
+import { useLineraWallet } from "@/hooks/useLineraWallet";
+import { SnakeContract } from "@/lib/contract-operations";
+import type { Direction, GameState as BlockchainGameState, SyncState, Transaction, TransactionStatus } from "@/lib/types";
+import { storage } from "@/utils/blockchain-utils";
 
 interface GameContextType {
   score: number;
@@ -8,6 +12,29 @@ interface GameContextType {
   setScore: (score: number | ((prevScore: number) => number)) => void;
   updateHighScore: (score: number) => void;
   resetScore: () => void;
+  
+  // Blockchain functionality
+  isBlockchainMode: boolean;
+  setBlockchainMode: (enabled: boolean) => void;
+  isGameActive: boolean;
+  setIsGameActive: (active: boolean) => void;
+  syncState: SyncState;
+  pendingTransactions: Transaction[];
+  blockchainGameState: BlockchainGameState | null;
+  totalPoints: number;
+  
+  // Blockchain operations
+  syncWithBlockchain: () => Promise<void>;
+  startGameOnChain: () => Promise<boolean>;
+  endGameOnChain: () => Promise<boolean>;
+  moveSnakeOnChain: (direction: Direction) => Promise<boolean>;
+  pauseGameOnChain: () => Promise<boolean>;
+  resumeGameOnChain: () => Promise<boolean>;
+  resetGameOnChain: () => Promise<boolean>;
+  
+  // Points operations
+  getPlayerPoints: () => Promise<number>;
+  redeemPlayerPoints: (amount: number) => Promise<boolean>;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -23,6 +50,22 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({
     }
     return 0;
   });
+
+  // Blockchain state
+  const { wallet } = useLineraWallet();
+  const [isBlockchainMode, setBlockchainModeState] = useState(false);
+  const [blockchainGameState, setBlockchainGameState] = useState<BlockchainGameState | null>(null);
+  const [totalPoints, setTotalPoints] = useState(0);
+  const [isGameActive, setIsGameActive] = useState(false); // Track if game is being played
+  const [syncState, setSyncState] = useState<SyncState>({
+    isSyncing: false,
+    lastSyncTime: null,
+    syncError: null,
+  });
+  const [pendingTransactions, setPendingTransactions] = useState<Transaction[]>([]);
+  
+  // Ref for sync interval
+  const syncIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const setScore = useCallback(
     (newScore: number | ((prevScore: number) => number)) => {
@@ -47,9 +90,414 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({
     setScoreState(0);
   }, []);
 
+  /**
+   * Set blockchain mode and enable/disable features accordingly
+   */
+  const setBlockchainMode = useCallback((enabled: boolean) => {
+    if (enabled && !wallet.connected) {
+      console.warn("⚠️ Cannot enable blockchain mode: wallet not connected");
+      return;
+    }
+    
+    console.log(enabled ? "🔗 Blockchain mode enabled" : "📴 Blockchain mode disabled");
+    setBlockchainModeState(enabled);
+    storage.set('jeteeah_blockchain_mode', enabled);
+  }, [wallet.connected]);
+
+  /**
+   * Add a pending transaction
+   */
+  const addTransaction = useCallback((tx: Transaction) => {
+    setPendingTransactions(prev => [...prev, tx]);
+  }, []);
+
+  /**
+   * Remove a transaction
+   */
+  const removeTransaction = useCallback((txId: string) => {
+    setPendingTransactions(prev => prev.filter(tx => tx.id !== txId));
+  }, []);
+
+  /**
+   * Sync game state from blockchain
+   */
+  const syncWithBlockchain = useCallback(async () => {
+    if (!wallet.connected || !wallet.address || !isBlockchainMode) {
+      return;
+    }
+
+    setSyncState(prev => ({ ...prev, isSyncing: true, syncError: null }));
+
+    try {
+      console.log("🔄 Syncing with blockchain...");
+      
+      // Fetch game state
+      const stateResult = await SnakeContract.getGameState(wallet.address);
+      
+      if (stateResult.success && stateResult.data) {
+        setBlockchainGameState(stateResult.data);
+        setScore(stateResult.data.score);
+        console.log("✅ Blockchain sync complete");
+      } else {
+        console.log("ℹ️ No game state found on blockchain");
+        setBlockchainGameState(null);
+      }
+
+      // Fetch high score
+      const highScoreResult = await SnakeContract.getHighScore(wallet.address);
+      if (highScoreResult.success && highScoreResult.data) {
+        setHighScore(highScoreResult.data);
+      }
+
+      // Fetch points - but DON'T update during active gameplay to avoid overwriting accumulated score
+      // Only sync points when game is not active (in menus, game over, etc.)
+      if (!isGameActive) {
+        const pointsResult = await SnakeContract.getPoints(wallet.address);
+        if (pointsResult.success && pointsResult.data !== undefined) {
+          console.log(`💰 Syncing points (game inactive): ${pointsResult.data}`);
+          setTotalPoints(pointsResult.data);
+        }
+      } else {
+        console.log(`⏭️ Skipping points sync (game is active)`);
+      }
+
+      setSyncState({
+        isSyncing: false,
+        lastSyncTime: Date.now(),
+        syncError: null,
+      });
+    } catch (error: any) {
+      console.error("❌ Blockchain sync failed:", error);
+      setSyncState({
+        isSyncing: false,
+        lastSyncTime: Date.now(),
+        syncError: error.message || "Sync failed",
+      });
+    }
+  }, [wallet.connected, wallet.address, isBlockchainMode]);
+
+  /**
+   * Start a new game on blockchain
+   */
+  const startGameOnChain = useCallback(async (): Promise<boolean> => {
+    if (!wallet.connected || !isBlockchainMode) {
+      console.warn("⚠️ Wallet not connected or blockchain mode disabled");
+      return false;
+    }
+
+    try {
+      console.log("🎮 Starting game on blockchain...");
+      
+      const tx: Transaction = {
+        id: `tx-start-${Date.now()}`,
+        type: 'StartGame',
+        status: 'pending' as TransactionStatus,
+        timestamp: Date.now(),
+      };
+      addTransaction(tx);
+
+      const result = await SnakeContract.startGame();
+      
+      removeTransaction(tx.id);
+
+      if (result.success) {
+        console.log("✅ Game started on blockchain");
+        await syncWithBlockchain();
+        return true;
+      } else {
+        console.error("❌ Failed to start game:", result.error);
+        return false;
+      }
+    } catch (error: any) {
+      console.error("❌ Error starting game:", error);
+      return false;
+    }
+  }, [wallet.connected, isBlockchainMode, syncWithBlockchain, addTransaction, removeTransaction]);
+
+  /**
+   * End game and save score to blockchain
+   */
+  const endGameOnChain = useCallback(async (): Promise<boolean> => {
+    if (!wallet.connected || !isBlockchainMode || !wallet.address) {
+      return false;
+    }
+
+    try {
+      console.log(`🏁 Ending game on blockchain for ${wallet.address}...`);
+      
+      const tx: Transaction = {
+        id: `tx-end-${Date.now()}`,
+        type: 'EndGame',
+        status: 'pending' as TransactionStatus,
+        timestamp: Date.now(),
+      };
+      addTransaction(tx);
+
+      // Pass wallet address and current score to award points
+      const result = await SnakeContract.endGame(wallet.address, score);
+      
+      removeTransaction(tx.id);
+
+      if (result.success) {
+        const pointsData = result.data as { pointsEarned?: number; totalPoints?: number };
+        console.log(`✅ Game ended! Points earned: ${pointsData.pointsEarned || score}, Total: ${pointsData.totalPoints || 0}`);
+        
+        // Update local points state with the new total from endGame
+        if (pointsData.totalPoints !== undefined) {
+          console.log(`💰 endGameOnChain: Updating totalPoints to ${pointsData.totalPoints}`);
+          setTotalPoints(pointsData.totalPoints);
+        }
+        
+        await syncWithBlockchain();
+        return true;
+      } else {
+        console.error("❌ Failed to end game:", result.error);
+        return false;
+      }
+    } catch (error: any) {
+      console.error("❌ Error ending game:", error);
+      return false;
+    }
+  }, [wallet.connected, wallet.address, isBlockchainMode, score, syncWithBlockchain, addTransaction, removeTransaction]);
+
+  /**
+   * Move snake with optimistic update
+   */
+  const moveSnakeOnChain = useCallback(async (direction: Direction): Promise<boolean> => {
+    if (!wallet.connected || !isBlockchainMode) {
+      return false;
+    }
+
+    try {
+      // Optimistic update happens in the game component
+      // Here we just send to blockchain
+      const result = await SnakeContract.moveSnake(direction);
+
+      if (result.success) {
+        // Sync after move to get authoritative state
+        await syncWithBlockchain();
+        return true;
+      } else {
+        console.error("❌ Failed to move snake:", result.error);
+        // Rollback by syncing
+        await syncWithBlockchain();
+        return false;
+      }
+    } catch (error: any) {
+      console.error("❌ Error moving snake:", error);
+      await syncWithBlockchain();
+      return false;
+    }
+  }, [wallet.connected, isBlockchainMode, syncWithBlockchain]);
+
+  /**
+   * Pause game on blockchain
+   */
+  const pauseGameOnChain = useCallback(async (): Promise<boolean> => {
+    if (!wallet.connected || !isBlockchainMode) {
+      return false;
+    }
+
+    try {
+      const result = await SnakeContract.pauseGame();
+      
+      if (result.success) {
+        console.log("⏸️ Game paused on blockchain");
+        await syncWithBlockchain();
+        return true;
+      }
+      return false;
+    } catch (error: any) {
+      console.error("❌ Error pausing game:", error);
+      return false;
+    }
+  }, [wallet.connected, isBlockchainMode, syncWithBlockchain]);
+
+  /**
+   * Resume game on blockchain
+   */
+  const resumeGameOnChain = useCallback(async (): Promise<boolean> => {
+    if (!wallet.connected || !isBlockchainMode) {
+      return false;
+    }
+
+    try {
+      const result = await SnakeContract.resumeGame();
+      
+      if (result.success) {
+        console.log("▶️ Game resumed on blockchain");
+        await syncWithBlockchain();
+        return true;
+      }
+      return false;
+    } catch (error: any) {
+      console.error("❌ Error resuming game:", error);
+      return false;
+    }
+  }, [wallet.connected, isBlockchainMode, syncWithBlockchain]);
+
+  /**
+   * Reset game on blockchain
+   */
+  const resetGameOnChain = useCallback(async (): Promise<boolean> => {
+    if (!wallet.connected || !isBlockchainMode) {
+      return false;
+    }
+
+    try {
+      const result = await SnakeContract.resetGame();
+      
+      if (result.success) {
+        console.log("🔄 Game reset on blockchain");
+        await syncWithBlockchain();
+        return true;
+      }
+      return false;
+    } catch (error: any) {
+      console.error("❌ Error resetting game:", error);
+      return false;
+    }
+  }, [wallet.connected, isBlockchainMode, syncWithBlockchain]);
+
+  /**
+   * Get player's total points
+   * Note: Avoids updating state during active gameplay to prevent overwriting accumulated score
+   */
+  const getPlayerPoints = useCallback(async (): Promise<number> => {
+    if (!wallet.connected || !wallet.address) {
+      return 0;
+    }
+
+    try {
+      const result = await SnakeContract.getPoints(wallet.address);
+      if (result.success && result.data !== undefined) {
+        // Only update state if game is not active to avoid overwriting during gameplay
+        if (!isGameActive) {
+          console.log(`💰 getPlayerPoints: Updating state to ${result.data} (game inactive)`);
+          setTotalPoints(result.data);
+        } else {
+          console.log(`⏭️ getPlayerPoints: Skipping state update (game is active), returned ${result.data}`);
+        }
+        return result.data;
+      }
+      return 0;
+    } catch (error) {
+      console.error("❌ Error getting points:", error);
+      return 0;
+    }
+  }, [wallet.connected, wallet.address, isGameActive]);
+
+  /**
+   * Redeem points
+   */
+  const redeemPlayerPoints = useCallback(async (amount: number): Promise<boolean> => {
+    if (!wallet.connected || !isBlockchainMode || !wallet.address) {
+      return false;
+    }
+
+    try {
+      console.log(`💰 Redeeming ${amount} points for ${wallet.address}...`);
+      const result = await SnakeContract.redeemPoints(wallet.address, amount);
+      
+      if (result.success) {
+        const remainingData = result.data as { remainingPoints?: number };
+        console.log(`✅ Points redeemed successfully. Remaining: ${remainingData.remainingPoints || 0}`);
+        
+        // Update local points if returned
+        if (remainingData.remainingPoints !== undefined) {
+          setTotalPoints(remainingData.remainingPoints);
+        }
+        
+        await getPlayerPoints(); // Refresh points from blockchain
+        return true;
+      } else {
+        console.error("❌ Failed to redeem points:", result.error);
+        return false;
+      }
+    } catch (error: any) {
+      console.error("❌ Error redeeming points:", error);
+      return false;
+    }
+  }, [wallet.connected, wallet.address, isBlockchainMode, getPlayerPoints]);
+
+  /**
+   * Auto-enable blockchain mode when wallet connects
+   */
+  useEffect(() => {
+    if (wallet.connected) {
+      const savedMode = storage.get('jeteeah_blockchain_mode', false);
+      setBlockchainModeState(savedMode);
+    } else {
+      setBlockchainModeState(false);
+    }
+  }, [wallet.connected]);
+
+  /**
+   * Initial sync when blockchain mode is enabled
+   */
+  useEffect(() => {
+    if (isBlockchainMode && wallet.connected) {
+      syncWithBlockchain();
+    }
+  }, [isBlockchainMode, wallet.connected]);
+
+  /**
+   * Set up dynamic sync intervals based on game state
+   * - Active gameplay: 3 seconds (more frequent)
+   * - Idle/menu: 10 seconds (less frequent)
+   */
+  useEffect(() => {
+    if (isBlockchainMode && wallet.connected) {
+      // Initial sync
+      syncWithBlockchain();
+
+      // Dynamic interval based on game state
+      const syncInterval = isGameActive ? 3000 : 10000;
+      
+      // Set up interval
+      syncIntervalRef.current = setInterval(() => {
+        syncWithBlockchain();
+      }, syncInterval);
+
+      console.log(`⏱️ Periodic blockchain sync enabled (${syncInterval/1000}s interval, ${isGameActive ? 'active game' : 'idle'})`);
+    }
+
+    // Cleanup
+    return () => {
+      if (syncIntervalRef.current) {
+        clearInterval(syncIntervalRef.current);
+        syncIntervalRef.current = null;
+        console.log("⏱️ Periodic blockchain sync disabled");
+      }
+    };
+  }, [isBlockchainMode, wallet.connected, isGameActive, syncWithBlockchain]);
+
   return (
     <GameContext.Provider
-      value={{ score, highScore, setScore, updateHighScore, resetScore }}
+      value={{
+        score,
+        highScore,
+        setScore,
+        updateHighScore,
+        resetScore,
+        isBlockchainMode,
+        setBlockchainMode,
+        isGameActive,
+        setIsGameActive,
+        syncState,
+        pendingTransactions,
+        blockchainGameState,
+        totalPoints,
+        syncWithBlockchain,
+        startGameOnChain,
+        endGameOnChain,
+        moveSnakeOnChain,
+        pauseGameOnChain,
+        resumeGameOnChain,
+        resetGameOnChain,
+        getPlayerPoints,
+        redeemPlayerPoints,
+      }}
     >
       {children}
     </GameContext.Provider>

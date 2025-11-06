@@ -8,10 +8,13 @@ import { BsPalette } from "react-icons/bs";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useGame } from "../contexts/GameContext";
+import { useLineraWallet } from "@/hooks/useLineraWallet";
 
 const Start = () => {
   const router = useRouter();
-  const { highScore } = useGame();
+  const { highScore, totalPoints, isBlockchainMode } = useGame();
+  const wallet = useLineraWallet();
+  
   return (
     <div className="bg-[#0F172A] h-full">
       <div className="flex flex-col justify-center items-center h-50">
@@ -38,7 +41,17 @@ const Start = () => {
               <CardTitle className="text-sm">Tokens</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-xl -mt-7">276</p>
+              {isBlockchainMode && wallet.wallet.connected ? (
+                <>
+                  <p className="text-xl -mt-7">{totalPoints.toLocaleString()}</p>
+                  <p className="text-xs text-green-400 mt-1">Blockchain</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm -mt-7 text-gray-400">Connect</p>
+                  <p className="text-xs text-gray-500 mt-1">wallet</p>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>

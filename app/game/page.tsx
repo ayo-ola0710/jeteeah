@@ -6,9 +6,14 @@ import { IoMdArrowUp, IoMdArrowDown } from "react-icons/io";
 import { IoMdArrowDropleft, IoMdArrowDropright } from "react-icons/io";
 import { useGame } from "../contexts/GameContext";
 import { useRouter } from "next/navigation";
+import { useLineraWallet } from "@/hooks/useLineraWallet";
+import BlockchainStatus from "@/components/BlockchainStatus";
+import { ParticleEffect, ConfettiEffect } from "@/components/ParticleEffects";
+import { Direction } from "@/lib/types";
 
 const SnakeGamePage = () => {
-  const { score, setScore, updateHighScore, resetScore } = useGame();
+  const { score, setScore, updateHighScore, resetScore, isBlockchainMode, endGameOnChain, highScore, setIsGameActive } = useGame();
+  const { wallet } = useLineraWallet();
   const router = useRouter();
   const gridSize = 20;
   const [boardWidth, setBoardWidth] = useState(395);
@@ -21,6 +26,8 @@ const SnakeGamePage = () => {
   const [paused, setPaused] = useState(false);
   const [gameKey, setGameKey] = useState(0);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [particleTrigger, setParticleTrigger] = useState(0);
+  const [confettiTrigger, setConfettiTrigger] = useState(0);
 
   // Reset score and game state when component mounts or gameKey changes
   useEffect(() => {
@@ -30,7 +37,14 @@ const SnakeGamePage = () => {
     setDirection({ x: 0, y: 0 });
     setGameOver(false);
     setPaused(false);
-  }, [gameKey, resetScore]); // eslint-disable-line react-hooks/exhaustive-deps
+    setIsGameActive(false); // Game starts inactive until first move
+  }, [gameKey, resetScore, setIsGameActive]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Track game active state based on direction
+  useEffect(() => {
+    const isMoving = direction.x !== 0 || direction.y !== 0;
+    setIsGameActive(isMoving && !gameOver && !paused);
+  }, [direction, gameOver, paused, setIsGameActive]);
 
   // handle movement
   useEffect(() => {
@@ -88,7 +102,19 @@ const SnakeGamePage = () => {
             x: Math.floor(Math.random() * gridSize),
             y: Math.floor(Math.random() * gridSize),
           });
-          setScore((prevScore) => prevScore + 5);
+          setScore((prevScore) => {
+            const newScore = prevScore + 5;
+            
+            // Trigger particle effect
+            setParticleTrigger(prev => prev + 1);
+            
+            // Check for new high score and trigger confetti
+            if (newScore > highScore) {
+              setConfettiTrigger(prev => prev + 1);
+            }
+            
+            return newScore;
+          });
         } else {
           newSnake = [newHead, ...prev.slice(0, -1)];
         }
@@ -103,12 +129,33 @@ const SnakeGamePage = () => {
   useEffect(() => {
     if (gameOver) {
       updateHighScore(score);
-      router.push("/gameover");
+      
+      // If blockchain mode is enabled, end game on chain
+      if (isBlockchainMode && wallet.connected) {
+        endGameOnChain().then(() => {
+          router.push("/gameover");
+        });
+      } else {
+        router.push("/gameover");
+      }
     }
-  }, [gameOver, score, updateHighScore, router]);
+  }, [gameOver, score, updateHighScore, router, isBlockchainMode, wallet.connected, endGameOnChain]);
 
   return (
     <div className="relative h-full bg-[#0F172A] text-white">
+      {/* Particle Effects */}
+      <ParticleEffect 
+        trigger={particleTrigger} 
+        x={50} 
+        y={50} 
+        color={isBlockchainMode ? "#FDC200" : "#10B981"}
+        count={isBlockchainMode ? 20 : 10}
+      />
+      <ConfettiEffect trigger={confettiTrigger} />
+      
+      {/* Blockchain Status */}
+      <BlockchainStatus />
+      
       {/* Game grid - full height background */}
       <div
         className="absolute inset-0"
@@ -122,7 +169,7 @@ const SnakeGamePage = () => {
       >
         {/* Food */}
         <div
-          className="absolute bg-red-500"
+          className={`absolute ${isBlockchainMode ? 'bg-yellow-400 shadow-lg shadow-yellow-500/50 animate-pulse' : 'bg-red-500'}`}
           style={{
             width: boardSize,
             height: boardSize,
@@ -135,7 +182,7 @@ const SnakeGamePage = () => {
         {snake.map((s, i) => (
           <div
             key={i}
-            className="absolute bg-green-500 rounded-sm"
+            className={`absolute rounded-sm ${isBlockchainMode ? 'bg-gradient-to-br from-yellow-400 to-orange-500 shadow-md shadow-yellow-500/30' : 'bg-green-500'}`}
             style={{
               width: boardSize,
               height: boardSize,
@@ -166,9 +213,12 @@ const SnakeGamePage = () => {
       )}
 
       {/* Score Box - in front of grid */}
-      <div className="absolute top-3 left-3 bg-blue-700/60 px-3 py-2 rounded-lg text-sm z-10">
+      <div className={`absolute top-3 left-3 px-3 py-2 rounded-lg text-sm z-10 ${isBlockchainMode ? 'bg-yellow-600/70 border border-yellow-400/50' : 'bg-blue-700/60'}`}>
         <p className="opacity-80">Score</p>
         <p className="text-white font-bold">{score}</p>
+        {isBlockchainMode && (
+          <p className="text-xs text-yellow-200 mt-1">🔗 On-Chain</p>
+        )}
       </div>
 
       {/* Top-right Icons - in front of grid */}

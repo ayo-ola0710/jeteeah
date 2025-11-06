@@ -9,10 +9,15 @@ import { LuCoins } from "react-icons/lu";
 import Image from "next/image";
 import { useGame } from "../contexts/GameContext";
 import { useRouter } from "next/navigation";
+import { useLineraWallet } from "@/hooks/useLineraWallet";
 
 const Gameover = () => {
-  const { score, highScore, resetScore } = useGame();
+  const { score, highScore, resetScore, isBlockchainMode, totalPoints } = useGame();
+  const { wallet } = useLineraWallet();
   const router = useRouter();
+  
+  // Calculate points earned this game (score in blockchain mode)
+  const pointsEarned = isBlockchainMode && wallet.connected ? score : 0;
   return (
     <div className="bg-[#0F172A] h-screen">
       <div className="font-space text-center pt-15 pb-10">
@@ -43,11 +48,20 @@ const Gameover = () => {
           </Card>
           <Card className="bg-[#1B2A4E99] border-none font-raleway w-35 text-white  text-center">
             <CardHeader>
-              <LuCoins className="w-6 h-6 text-[#FF1414] ml-8 " />
-              <CardTitle className="text-sm">Tokens</CardTitle>
+              <LuCoins className="w-6 h-6 text-[#FDC200] ml-8 " />
+              <CardTitle className="text-sm">
+                {isBlockchainMode ? 'Points Earned' : 'Points'}
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-xl -mt-7 text-[#FF1414]">-27</p>
+              {isBlockchainMode && wallet.connected ? (
+                <>
+                  <p className="text-xl -mt-7 text-[#FDC200]">+{pointsEarned}</p>
+                  <p className="text-xs text-gray-400 mt-1">Total: {totalPoints.toLocaleString()}</p>
+                </>
+              ) : (
+                <p className="text-sm -mt-7 text-gray-400">Connect wallet</p>
+              )}
             </CardContent>
           </Card>
         </div>
