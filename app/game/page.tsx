@@ -12,7 +12,16 @@ import { ParticleEffect, ConfettiEffect } from "@/components/ParticleEffects";
 import { Direction } from "@/lib/types";
 
 const SnakeGamePage = () => {
-  const { score, setScore, updateHighScore, resetScore, isBlockchainMode, endGameOnChain, highScore, setIsGameActive } = useGame();
+  const {
+    score,
+    setScore,
+    updateHighScore,
+    resetScore,
+    isBlockchainMode,
+    endGameOnChain,
+    highScore,
+    setIsGameActive,
+  } = useGame();
   const { wallet } = useLineraWallet();
   const router = useRouter();
   const gridSize = 20;
@@ -104,15 +113,15 @@ const SnakeGamePage = () => {
           });
           setScore((prevScore) => {
             const newScore = prevScore + 5;
-            
+
             // Trigger particle effect
-            setParticleTrigger(prev => prev + 1);
-            
+            setParticleTrigger((prev) => prev + 1);
+
             // Check for new high score and trigger confetti
             if (newScore > highScore) {
-              setConfettiTrigger(prev => prev + 1);
+              setConfettiTrigger((prev) => prev + 1);
             }
-            
+
             return newScore;
           });
         } else {
@@ -129,7 +138,7 @@ const SnakeGamePage = () => {
   useEffect(() => {
     if (gameOver) {
       updateHighScore(score);
-      
+
       // If blockchain mode is enabled, end game on chain
       if (isBlockchainMode && wallet.connected) {
         endGameOnChain().then(() => {
@@ -139,23 +148,31 @@ const SnakeGamePage = () => {
         router.push("/gameover");
       }
     }
-  }, [gameOver, score, updateHighScore, router, isBlockchainMode, wallet.connected, endGameOnChain]);
+  }, [
+    gameOver,
+    score,
+    updateHighScore,
+    router,
+    isBlockchainMode,
+    wallet.connected,
+    endGameOnChain,
+  ]);
 
   return (
     <div className="relative h-full bg-[#0F172A] text-white">
       {/* Particle Effects */}
-      <ParticleEffect 
-        trigger={particleTrigger} 
-        x={50} 
-        y={50} 
+      <ParticleEffect
+        trigger={particleTrigger}
+        x={50}
+        y={50}
         color={isBlockchainMode ? "#FDC200" : "#10B981"}
         count={isBlockchainMode ? 20 : 10}
       />
       <ConfettiEffect trigger={confettiTrigger} />
-      
+
       {/* Blockchain Status */}
       <BlockchainStatus />
-      
+
       {/* Game grid - full height background */}
       <div
         className="absolute inset-0"
@@ -169,7 +186,11 @@ const SnakeGamePage = () => {
       >
         {/* Food */}
         <div
-          className={`absolute ${isBlockchainMode ? 'bg-yellow-400 shadow-lg shadow-yellow-500/50 animate-pulse' : 'bg-red-500'}`}
+          className={`absolute ${
+            isBlockchainMode
+              ? "bg-yellow-400 shadow-lg shadow-yellow-500/50 animate-pulse"
+              : "bg-red-500"
+          }`}
           style={{
             width: boardSize,
             height: boardSize,
@@ -182,7 +203,11 @@ const SnakeGamePage = () => {
         {snake.map((s, i) => (
           <div
             key={i}
-            className={`absolute rounded-sm ${isBlockchainMode ? 'bg-gradient-to-br from-yellow-400 to-orange-500 shadow-md shadow-yellow-500/30' : 'bg-green-500'}`}
+            className={`absolute rounded-sm ${
+              isBlockchainMode
+                ? "bg-gradient-to-br from-yellow-400 to-orange-500 shadow-md shadow-yellow-500/30"
+                : "bg-green-500"
+            }`}
             style={{
               width: boardSize,
               height: boardSize,
@@ -213,7 +238,13 @@ const SnakeGamePage = () => {
       )}
 
       {/* Score Box - in front of grid */}
-      <div className={`absolute top-3 left-3 px-3 py-2 rounded-lg text-sm z-10 ${isBlockchainMode ? 'bg-yellow-600/70 border border-yellow-400/50' : 'bg-blue-700/60'}`}>
+      <div
+        className={`absolute top-3 left-3 px-3 py-2 rounded-lg text-sm z-10 ${
+          isBlockchainMode
+            ? "bg-yellow-600/70 border border-yellow-400/50"
+            : "bg-blue-700/60"
+        }`}
+      >
         <p className="opacity-80">Score</p>
         <p className="text-white font-bold">{score}</p>
         {isBlockchainMode && (

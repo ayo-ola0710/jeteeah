@@ -16,66 +16,80 @@ const Page = () => {
   const router = useRouter();
   const { totalPoints, highScore, isBlockchainMode } = useGame();
   const wallet = useLineraWallet();
-  
+
   // Define achievements based on high score
   const achievements = [
     {
-      icon: <TbTargetArrow className="w-8 h-8 text-[#FF1414] bg-white p-1 rounded-full" />,
+      icon: (
+        <TbTargetArrow className="w-8 h-8 text-[#FF1414] bg-white p-1 rounded-full" />
+      ),
       title: "First Step",
       description: "Score 50 Points in a single Game",
       reward: 50,
       requirement: 50,
-      isCompleted: highScore >= 50
+      isCompleted: highScore >= 50,
     },
     {
-      icon: <FaBolt className="w-8 h-8 text-[#FF1414] bg-white p-1 rounded-full" />,
+      icon: (
+        <FaBolt className="w-8 h-8 text-[#FF1414] bg-white p-1 rounded-full" />
+      ),
       title: "Century",
       description: "Score 100 Points in a single Game",
       reward: 100,
       requirement: 100,
-      isCompleted: highScore >= 100
+      isCompleted: highScore >= 100,
     },
     {
-      icon: <HiOutlineTrophy className="w-8 h-8 text-[#FF1414] bg-white p-1 rounded-full" />,
+      icon: (
+        <HiOutlineTrophy className="w-8 h-8 text-[#FF1414] bg-white p-1 rounded-full" />
+      ),
       title: "Double Century",
       description: "Score 200 Points in a single Game",
       reward: 200,
       requirement: 200,
-      isCompleted: highScore >= 200
+      isCompleted: highScore >= 200,
     },
     {
-      icon: <HiOutlineTrophy className="w-8 h-8 text-[#FDC200] bg-white p-1 rounded-full" />,
+      icon: (
+        <HiOutlineTrophy className="w-8 h-8 text-[#FDC200] bg-white p-1 rounded-full" />
+      ),
       title: "Triple Century",
       description: "Score 300 Points in a single Game",
       reward: 300,
       requirement: 300,
-      isCompleted: highScore >= 300
+      isCompleted: highScore >= 300,
     },
     {
-      icon: <HiOutlineTrophy className="w-8 h-8 text-[#8B5CF6] bg-white p-1 rounded-full" />,
+      icon: (
+        <HiOutlineTrophy className="w-8 h-8 text-[#8B5CF6] bg-white p-1 rounded-full" />
+      ),
       title: "Half Millennium",
       description: "Score 500 Points in a single Game",
       reward: 500,
       requirement: 500,
-      isCompleted: highScore >= 500
+      isCompleted: highScore >= 500,
     },
     {
-      icon: <HiOutlineTrophy className="w-8 h-8 text-[#FF1414] bg-white p-1 rounded-full" />,
+      icon: (
+        <HiOutlineTrophy className="w-8 h-8 text-[#FF1414] bg-white p-1 rounded-full" />
+      ),
       title: "Legendary",
       description: "Score 1000 Points in a single Game",
       reward: 1000,
       requirement: 1000,
-      isCompleted: highScore >= 1000
-    }
+      isCompleted: highScore >= 1000,
+    },
   ];
-  
-  const completedAchievements = achievements.filter(a => a.isCompleted).length;
+
+  const completedAchievements = achievements.filter(
+    (a) => a.isCompleted
+  ).length;
   const totalRewardsEarned = achievements
-    .filter(a => a.isCompleted)
+    .filter((a) => a.isCompleted)
     .reduce((sum, a) => sum + a.reward, 0);
-  
+
   return (
-    <div className="bg-[#0F172A] h-full overflow-y-scroll">
+    <div className="bg-[#0F172A] h-full overflow-y-scroll pb-5">
       <div className="flex gap-23 items-center pt-7">
         <BsArrowLeft
           className="w-6 h-6 text-white ml-8 cursor-pointer"
@@ -86,7 +100,7 @@ const Page = () => {
       <div className="flex justify-end mr-7 mt-3">
         <p className="flex items-center gap-2 bg-[#1B2A4E99] p-1 rounded-3xl w-25 ">
           <LuCoins className="w-6 h-6 text-[#FF1414] ml-2" />
-          <p>{wallet.wallet.connected ? totalPoints.toLocaleString() : '0'}</p>
+          <p>{wallet.wallet.connected ? totalPoints.toLocaleString() : "0"}</p>
         </p>
       </div>
       <div className="mx-5">
@@ -96,7 +110,7 @@ const Page = () => {
             <PointsDashboard />
           </div>
         )}
-        
+
         <div className="border border-[#FF1414]  bg-[#1B2A4E99] font-space space-y-5 p-2 rounded-md mt-8">
           <div className="flex items-center gap-3">
             <HiOutlineGift className="w-6 h-6 text-[#FF1414]" />
@@ -108,20 +122,25 @@ const Page = () => {
             </div>
           </div>
           <div className="text-center">
-            <p className="text-xl">{wallet.wallet.connected ? totalPoints : 0}</p>
+            <p className="text-xl">
+              {wallet.wallet.connected ? totalPoints : 0}
+            </p>
             <p className="text-sm">Total Token Earned</p>
             <div className="mt-3 text-xs text-gray-400">
-              <p>{completedAchievements} of {achievements.length} achievements completed</p>
-              <p className="text-green-400">+{totalRewardsEarned} bonus points earned</p>
+              <p>
+                {completedAchievements} of {achievements.length} achievements
+                completed
+              </p>
+              <p className="text-green-400">
+                +{totalRewardsEarned} bonus points earned
+              </p>
             </div>
           </div>
         </div>
         <div className="font-space pt-3">
           <div className="flex justify-between items-center mb-3">
             <p>Achievements</p>
-            <p className="text-xs text-gray-400">
-              High Score: {highScore}
-            </p>
+            <p className="text-xs text-gray-400">High Score: {highScore}</p>
           </div>
           <div className="space-y-3">
             {achievements.map((achievement, index) => (

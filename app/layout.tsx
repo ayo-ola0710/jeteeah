@@ -4,7 +4,10 @@ import "./globals.css";
 import { GameProvider } from "./contexts/GameContext";
 import WalletButton from "@/components/WalletButton";
 import TransactionNotification from "@/components/TransactionNotification";
-import { ErrorBoundary, BlockchainErrorBoundary } from "@/components/ErrorBoundary";
+import {
+  ErrorBoundary,
+  BlockchainErrorBoundary,
+} from "@/components/ErrorBoundary";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -39,7 +42,7 @@ export default function RootLayout({
               <WalletButton />
               <TransactionNotification />
             </BlockchainErrorBoundary>
-            <div className="w-[395px] max-w-full h-[630px]  shadow-lg overflow-hidden font-sans">
+            <div className="w-[395px] max-w-full h-screen  shadow-lg overflow-hidden font-sans">
               {children}
             </div>
           </GameProvider>

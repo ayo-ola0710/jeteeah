@@ -12,15 +12,16 @@ import { useRouter } from "next/navigation";
 import { useLineraWallet } from "@/hooks/useLineraWallet";
 
 const Gameover = () => {
-  const { score, highScore, resetScore, isBlockchainMode, totalPoints } = useGame();
+  const { score, highScore, resetScore, isBlockchainMode, totalPoints } =
+    useGame();
   const { wallet } = useLineraWallet();
   const router = useRouter();
-  
+
   // Calculate points earned this game (score in blockchain mode)
   const pointsEarned = isBlockchainMode && wallet.connected ? score : 0;
   return (
     <div className="bg-[#0F172A] h-screen">
-      <div className="font-space text-center pt-15 pb-10">
+      <div className="font-space text-center pt-5 pb-5">
         <p>Game Over</p>
         <div className="flex justify-center pt-2 gap-3">
           <p className="text-[#FDC200]">New High Score </p>
@@ -50,14 +51,18 @@ const Gameover = () => {
             <CardHeader>
               <LuCoins className="w-6 h-6 text-[#FDC200] ml-8 " />
               <CardTitle className="text-sm">
-                {isBlockchainMode ? 'Points Earned' : 'Points'}
+                {isBlockchainMode ? "Points Earned" : "Points"}
               </CardTitle>
             </CardHeader>
             <CardContent>
               {isBlockchainMode && wallet.connected ? (
                 <>
-                  <p className="text-xl -mt-7 text-[#FDC200]">+{pointsEarned}</p>
-                  <p className="text-xs text-gray-400 mt-1">Total: {totalPoints.toLocaleString()}</p>
+                  <p className="text-xl -mt-7 text-[#FDC200]">
+                    +{pointsEarned}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Total: {totalPoints.toLocaleString()}
+                  </p>
                 </>
               ) : (
                 <p className="text-sm -mt-7 text-gray-400">Connect wallet</p>
@@ -66,7 +71,7 @@ const Gameover = () => {
           </Card>
         </div>
       </div>
-      <div className="flex flex-col gap-5 justify-center items-center">
+      <div className="flex flex-col gap-5 justify-center items-center -mt-5">
         <Button
           className="py-6.5 bg-[#FF1414] flex gap-5 w-80 hover:bg-[#f76f6f] cursor-pointer hover:scale-105"
           onClick={() => {
