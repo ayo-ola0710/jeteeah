@@ -43,13 +43,17 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [score, setScoreState] = useState(0);
-  const [highScore, setHighScore] = useState(() => {
+  const [highScore, setHighScore] = useState(0);
+
+  // Load high score from localStorage on client side only (after hydration)
+  useEffect(() => {
     if (typeof window !== "undefined") {
       const savedHighScore = localStorage.getItem("snakeHighScore");
-      return savedHighScore ? parseInt(savedHighScore, 10) : 0;
+      if (savedHighScore) {
+        setHighScore(parseInt(savedHighScore, 10));
+      }
     }
-    return 0;
-  });
+  }, []);
 
   // Blockchain state
   const { wallet } = useLineraWallet();
@@ -120,6 +124,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({
 
   /**
    * Sync game state from blockchain
+   * Note: During active gameplay, score is tracked LOCALLY (off-chain) for performance.
+   * Only at game end is the final score sent to blockchain via endGameOnChain()
    */
   const syncWithBlockchain = useCallback(async () => {
     if (!wallet.connected || !wallet.address || !isBlockchainMode) {
@@ -129,17 +135,27 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({
     setSyncState(prev => ({ ...prev, isSyncing: true, syncError: null }));
 
     try {
-      console.log("🔄 Syncing with blockchain...");
+      if (isGameActive) {
+        console.log("🎮 Game active - score tracked locally, will sync at game end");
+      } else {
+        console.log("🔄 Syncing with blockchain...");
+      }
       
-      // Fetch game state
+      // Fetch game state (only update score when game is inactive)
       const stateResult = await SnakeContract.getGameState(wallet.address);
       
       if (stateResult.success && stateResult.data) {
         setBlockchainGameState(stateResult.data);
-        setScore(stateResult.data.score);
-        console.log("✅ Blockchain sync complete");
+        // Score is ONLY synced when game is NOT active
+        // During gameplay, score is local and sent to blockchain at game end
+        if (!isGameActive) {
+          setScore(stateResult.data.score);
+          console.log(`📊 Synced blockchain score: ${stateResult.data.score}`);
+        }
       } else {
-        console.log("ℹ️ No game state found on blockchain");
+        if (!isGameActive) {
+          console.log("ℹ️ No game state found on blockchain");
+        }
         setBlockchainGameState(null);
       }
 
@@ -149,16 +165,13 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({
         setHighScore(highScoreResult.data);
       }
 
-      // Fetch points - but DON'T update during active gameplay to avoid overwriting accumulated score
-      // Only sync points when game is not active (in menus, game over, etc.)
+      // Fetch points - only when game is not active
       if (!isGameActive) {
         const pointsResult = await SnakeContract.getPoints(wallet.address);
         if (pointsResult.success && pointsResult.data !== undefined) {
-          console.log(`💰 Syncing points (game inactive): ${pointsResult.data}`);
+          console.log(`💰 Synced points: ${pointsResult.data}`);
           setTotalPoints(pointsResult.data);
         }
-      } else {
-        console.log(`⏭️ Skipping points sync (game is active)`);
       }
 
       setSyncState({
@@ -215,7 +228,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [wallet.connected, isBlockchainMode, syncWithBlockchain, addTransaction, removeTransaction]);
 
   /**
-   * End game and save score to blockchain
+   * End game and save final score to blockchain
+   * This is where the local (off-chain) score is sent to the blockchain
+   * Flow: Game plays locally → Score accumulates → Game ends → Score sent to blockchain → Points awarded
    */
   const endGameOnChain = useCallback(async (): Promise<boolean> => {
     if (!wallet.connected || !isBlockchainMode || !wallet.address) {
@@ -223,7 +238,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     try {
-      console.log(`🏁 Ending game on blockchain for ${wallet.address}...`);
+      console.log(`🏁 Ending game - sending final score ${score} to blockchain for ${wallet.address}...`);
       
       const tx: Transaction = {
         id: `tx-end-${Date.now()}`,
@@ -233,16 +248,16 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({
       };
       addTransaction(tx);
 
-      // Pass wallet address and current score to award points
+      // Send local score to blockchain and award points to wallet
       const result = await SnakeContract.endGame(wallet.address, score);
       
       removeTransaction(tx.id);
 
       if (result.success) {
         const pointsData = result.data as { pointsEarned?: number; totalPoints?: number };
-        console.log(`✅ Game ended! Points earned: ${pointsData.pointsEarned || score}, Total: ${pointsData.totalPoints || 0}`);
+        console.log(`✅ Game ended! Score: ${score} → Points earned: ${pointsData.pointsEarned || score}, Total: ${pointsData.totalPoints || 0}`);
         
-        // Update local points state with the new total from endGame
+        // Update local points state with the new total from blockchain
         if (pointsData.totalPoints !== undefined) {
           console.log(`💰 endGameOnChain: Updating totalPoints to ${pointsData.totalPoints}`);
           setTotalPoints(pointsData.totalPoints);

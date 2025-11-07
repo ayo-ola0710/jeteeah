@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FiPause } from "react-icons/fi";
 import { RiCloseLine } from "react-icons/ri";
 import { IoMdArrowUp, IoMdArrowDown } from "react-icons/io";
@@ -37,6 +37,9 @@ const SnakeGamePage = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [particleTrigger, setParticleTrigger] = useState(0);
   const [confettiTrigger, setConfettiTrigger] = useState(0);
+  
+  // Use ref to track if food was just eaten
+  const foodEatenRef = useRef(false);
 
   // Reset score and game state when component mounts or gameKey changes
   useEffect(() => {
@@ -106,24 +109,17 @@ const SnakeGamePage = () => {
 
         let newSnake = [];
         if (newHead.x === food.x && newHead.y === food.y) {
+          // Snake ate food
           newSnake = [newHead, ...prev];
+          
+          // Update food position
           setFood({
             x: Math.floor(Math.random() * gridSize),
             y: Math.floor(Math.random() * gridSize),
           });
-          setScore((prevScore) => {
-            const newScore = prevScore + 5;
-
-            // Trigger particle effect
-            setParticleTrigger((prev) => prev + 1);
-
-            // Check for new high score and trigger confetti
-            if (newScore > highScore) {
-              setConfettiTrigger((prev) => prev + 1);
-            }
-
-            return newScore;
-          });
+          
+          // Mark that food was eaten (handle score in separate effect)
+          foodEatenRef.current = true;
         } else {
           newSnake = [newHead, ...prev.slice(0, -1)];
         }
@@ -132,7 +128,34 @@ const SnakeGamePage = () => {
       });
     }, 200);
     return () => clearInterval(loop);
-  }, [direction, food, gameOver, paused, setScore]);
+  }, [direction, food, gameOver, paused]);
+
+  // Handle score updates when food is eaten (separate from snake update)
+  useEffect(() => {
+    if (foodEatenRef.current) {
+      foodEatenRef.current = false;
+      console.log('🍎 Food eaten! Updating score...');
+      
+      // Update score using functional form
+      setScore((prevScore) => {
+        const newScore = prevScore + 5;
+        console.log(`📊 Score: ${prevScore} → ${newScore}`);
+        
+        // Defer visual effects to avoid setState-in-render issues
+        queueMicrotask(() => {
+          // Trigger particle effect
+          setParticleTrigger((prev) => prev + 1);
+
+          // Check for new high score and trigger confetti
+          if (newScore > highScore) {
+            setConfettiTrigger((prev) => prev + 1);
+          }
+        });
+        
+        return newScore;
+      });
+    }
+  }, [snake, highScore]); // Depend on snake and highScore
 
   // Handle game over
   useEffect(() => {

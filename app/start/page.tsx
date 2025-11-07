@@ -13,7 +13,7 @@ import { useLineraWallet } from "@/hooks/useLineraWallet";
 const Start = () => {
   const router = useRouter();
   const { highScore, totalPoints, isBlockchainMode } = useGame();
-  const wallet = useLineraWallet();
+  const { wallet } = useLineraWallet();
 
   return (
     <div className="bg-[#0F172A] h-full pb-10">
@@ -41,7 +41,7 @@ const Start = () => {
               <CardTitle className="text-sm">Tokens</CardTitle>
             </CardHeader>
             <CardContent>
-              {isBlockchainMode && wallet.wallet.connected ? (
+              {isBlockchainMode && wallet.connected ? (
                 <>
                   <p className="text-xl -mt-7">
                     {totalPoints.toLocaleString()}

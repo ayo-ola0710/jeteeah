@@ -7,7 +7,7 @@ import { useLineraWallet } from "@/hooks/useLineraWallet";
 
 const LeaderboardPage = () => {
   const router = useRouter();
-  const wallet = useLineraWallet();
+  const { wallet, connect } = useLineraWallet();
 
   return (
     <div className="bg-[#0F172A] min-h-screen overflow-y-scroll pb-10">
@@ -19,11 +19,11 @@ const LeaderboardPage = () => {
         <p className="font-space text-xl font-medium">Leaderboard</p>
       </div>
 
-      {!wallet.wallet.connected ? (
+      {!wallet.connected ? (
         <div className="mx-5 mt-20 text-center">
           <p className="text-gray-400 mb-4">Connect your wallet to view the leaderboard</p>
           <button
-            onClick={() => wallet.connect()}
+            onClick={() => connect()}
             className="bg-[#FF1414] text-white px-6 py-3 rounded-lg hover:bg-[#f76f6f] transition-colors"
           >
             Connect Wallet

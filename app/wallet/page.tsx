@@ -10,13 +10,13 @@ import { useState } from "react";
 
 const Wallet = () => {
   const router = useRouter();
-  const wallet = useLineraWallet();
+  const { wallet, connect, disconnect, isMockMode, isConnecting, error } = useLineraWallet();
   const { totalPoints, isBlockchainMode, setBlockchainMode } = useGame();
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null);
 
   const handleConnect = async (walletType: string) => {
     setSelectedWallet(walletType);
-    await wallet.connect();
+    await connect();
 
     // Enable blockchain mode after connection
     if (!isBlockchainMode) {
@@ -30,7 +30,7 @@ const Wallet = () => {
   };
 
   const handleDisconnect = async () => {
-    wallet.disconnect();
+    disconnect();
     setSelectedWallet(null);
   };
 
@@ -107,16 +107,16 @@ const Wallet = () => {
         </div>
       </div>
       <div className="flex justify-center flex-col items-center gap-4 -mt-10">
-        {wallet.wallet.connected ? (
+        {wallet.connected ? (
           <>
             <div className="flex gap-4 pt-10">
               <div className="bg-[#1B2A4E99] px-6 py-3 rounded-lg text-center">
                 <p className="text-sm text-gray-400 mb-1">Connected Address</p>
                 <p className="font-mono text-sm">
-                  {wallet.wallet.address?.slice(0, 6)}...
-                  {wallet.wallet.address?.slice(-4)}
+                  {wallet.address?.slice(0, 6)}...
+                  {wallet.address?.slice(-4)}
                 </p>
-                {wallet.isMockMode && (
+                {isMockMode && (
                   <p className="text-xs text-yellow-400 mt-1">Mock Mode</p>
                 )}
               </div>
@@ -137,12 +137,12 @@ const Wallet = () => {
         ) : (
           <div className="text-center pt-20">
             <p className="text-sm text-gray-400 mb-4">
-              {wallet.isConnecting
+              {isConnecting
                 ? "Connecting..."
                 : "Select a wallet above to connect"}
             </p>
-            {wallet.error && (
-              <p className="text-sm text-red-400 mb-4">{wallet.error}</p>
+            {error && (
+              <p className="text-sm text-red-400 mb-4">{error}</p>
             )}
           </div>
         )}

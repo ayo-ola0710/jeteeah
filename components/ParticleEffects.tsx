@@ -28,15 +28,19 @@ interface ParticleEffectProps {
   count?: number;
 }
 
+// Counter to ensure unique IDs across rapid triggers
+let particleIdCounter = 0;
+
 export function ParticleEffect({ trigger, x = 50, y = 50, color = '#FDC200', count = 15 }: ParticleEffectProps) {
   const [particles, setParticles] = useState<Particle[]>([]);
 
   useEffect(() => {
     if (trigger === 0) return;
 
-    // Generate new particles
+    // Generate new particles with guaranteed unique IDs
+    const baseId = Date.now() * 1000 + particleIdCounter;
     const newParticles: Particle[] = Array.from({ length: count }, (_, i) => ({
-      id: Date.now() + i,
+      id: baseId + i,
       x,
       y,
       vx: (Math.random() - 0.5) * 4,
@@ -45,6 +49,8 @@ export function ParticleEffect({ trigger, x = 50, y = 50, color = '#FDC200', cou
       color,
       size: Math.random() * 8 + 4
     }));
+
+    particleIdCounter = (particleIdCounter + count) % 1000000; // Prevent overflow
 
     setParticles(prev => [...prev, ...newParticles]);
 
@@ -99,6 +105,9 @@ interface ConfettiProps {
   duration?: number;
 }
 
+// Counter for confetti unique IDs
+let confettiIdCounter = 0;
+
 export function ConfettiEffect({ trigger, duration = 3000 }: ConfettiProps) {
   const [active, setActive] = useState(false);
   const [confetti, setConfetti] = useState<Particle[]>([]);
@@ -110,9 +119,10 @@ export function ConfettiEffect({ trigger, duration = 3000 }: ConfettiProps) {
 
     setActive(true);
     
-    // Create burst of confetti
+    // Create burst of confetti with unique IDs
+    const baseId = Date.now() * 1000 + confettiIdCounter;
     const pieces = Array.from({ length: 50 }, (_, i) => ({
-      id: Date.now() + i,
+      id: baseId + i,
       x: 50,
       y: 50,
       vx: (Math.random() - 0.5) * 8,
@@ -123,6 +133,8 @@ export function ConfettiEffect({ trigger, duration = 3000 }: ConfettiProps) {
       rotation: Math.random() * 360,
       rotationSpeed: (Math.random() - 0.5) * 20
     }));
+
+    confettiIdCounter = (confettiIdCounter + 50) % 1000000; // Prevent overflow
 
     setConfetti(pieces);
 

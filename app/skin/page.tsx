@@ -12,7 +12,7 @@ import { SnakeContract } from "@/lib/contract-operations";
 const Skins = () => {
   const router = useRouter();
   const { totalPoints } = useGame();
-  const wallet = useLineraWallet();
+  const { wallet } = useLineraWallet();
   const [ownedSkins, setOwnedSkins] = useState<number[]>([0]); // 0 is default skin
   const [activeSkin, setActiveSkin] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -20,14 +20,14 @@ const Skins = () => {
   // Fetch owned skins from blockchain
   useEffect(() => {
     const fetchSkins = async () => {
-      if (wallet.wallet.connected) {
+      if (wallet.connected) {
         // TODO: Implement getOwnedSkins from contract when ready
         // For now, all skins are available in demo mode
         setOwnedSkins([0, 1, 2, 3, 4, 5]);
       }
     };
     fetchSkins();
-  }, [wallet.wallet.connected]);
+  }, [wallet.connected]);
 
   const handleSelectSkin = async (skinId: number) => {
     if (!ownedSkins.includes(skinId)) return;
@@ -39,7 +39,7 @@ const Skins = () => {
   };
 
   const handlePurchaseSkin = async (skinId: number, cost: number) => {
-    if (!wallet.wallet.connected) {
+    if (!wallet.connected) {
       alert("Please connect your wallet first!");
       router.push("/wallet");
       return;
@@ -109,7 +109,7 @@ const Skins = () => {
       <div className="flex justify-end mr-7 mt-3">
         <p className="flex items-center gap-2 bg-[#1B2A4E99] p-1 rounded-3xl w-25 ">
           <LuCoins className="w-6 h-6 text-[#FF1414] ml-2" />
-          <p>{wallet.wallet.connected ? totalPoints.toLocaleString() : '0'}</p>
+          <p>{totalPoints.toLocaleString()}</p>
         </p>
       </div>
 

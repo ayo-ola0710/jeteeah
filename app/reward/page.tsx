@@ -15,7 +15,7 @@ import { useLineraWallet } from "@/hooks/useLineraWallet";
 const Page = () => {
   const router = useRouter();
   const { totalPoints, highScore, isBlockchainMode } = useGame();
-  const wallet = useLineraWallet();
+  const { wallet } = useLineraWallet();
 
   // Define achievements based on high score
   const achievements = [
@@ -100,12 +100,12 @@ const Page = () => {
       <div className="flex justify-end mr-7 mt-3">
         <p className="flex items-center gap-2 bg-[#1B2A4E99] p-1 rounded-3xl w-25 ">
           <LuCoins className="w-6 h-6 text-[#FF1414] ml-2" />
-          <p>{wallet.wallet.connected ? totalPoints.toLocaleString() : "0"}</p>
+          <p>{totalPoints.toLocaleString()}</p>
         </p>
       </div>
       <div className="mx-5">
         {/* Points Dashboard - Blockchain Integration */}
-        {isBlockchainMode && wallet.wallet.connected && (
+        {isBlockchainMode && wallet.connected && (
           <div className="mb-5">
             <PointsDashboard />
           </div>
@@ -123,7 +123,7 @@ const Page = () => {
           </div>
           <div className="text-center">
             <p className="text-xl">
-              {wallet.wallet.connected ? totalPoints : 0}
+              {totalPoints}
             </p>
             <p className="text-sm">Total Token Earned</p>
             <div className="mt-3 text-xs text-gray-400">
