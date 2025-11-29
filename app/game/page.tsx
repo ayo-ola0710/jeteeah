@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { useLineraWallet } from "@/hooks/useLineraWallet";
 import BlockchainStatus from "@/components/BlockchainStatus";
 import { ParticleEffect, ConfettiEffect } from "@/components/ParticleEffects";
-import { Direction } from "@/lib/types";
+
 
 const SnakeGamePage = () => {
   const {
@@ -26,7 +26,7 @@ const SnakeGamePage = () => {
   const router = useRouter();
   const gridSize = 20;
   const [boardWidth, setBoardWidth] = useState(395);
-  const [boardHeight, setBoardHeight] = useState(630);
+  const [boardHeight, setBoardHeight] = useState(400); // Adjusted for control buttons
   const boardSize = Math.min(boardWidth, boardHeight) / gridSize;
   const [snake, setSnake] = useState([{ x: 10, y: 10 }]);
   const [food, setFood] = useState({ x: 5, y: 5 });
@@ -182,7 +182,7 @@ const SnakeGamePage = () => {
   ]);
 
   return (
-    <div className="relative h-full bg-[#0F172A] text-white">
+    <div className="relative min-h-screen bg-[#0F172A] text-white flex flex-col">
       {/* Particle Effects */}
       <ParticleEffect
         trigger={particleTrigger}
@@ -196,17 +196,21 @@ const SnakeGamePage = () => {
       {/* Blockchain Status */}
       <BlockchainStatus />
 
-      {/* Game grid - full height background */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, #1E293B 1px, transparent 1px), linear-gradient(to bottom, #1E293B 1px, transparent 1px)",
-          backgroundSize: `${boardWidth / gridSize}px ${
-            boardHeight / gridSize
-          }px`,
-        }}
-      >
+      {/* Game grid container */}
+      <div className="flex-1 flex items-center justify-center bg-[#0F172A] relative mt">
+        {/* Game grid - fixed size */}
+        <div
+          className="relative border-b border-gray-800 mt-12"
+          style={{
+            width: boardWidth,
+            height: boardHeight,
+            backgroundImage:
+              "linear-gradient(to right, #1E293B 1px, transparent 1px), linear-gradient(to bottom, #1E293B 1px, transparent 1px)",
+            backgroundSize: `${boardWidth / gridSize}px ${
+              boardHeight / gridSize
+            }px`,
+          }}
+        >
         {/* Food */}
         <div
           className={`absolute ${
@@ -247,10 +251,11 @@ const SnakeGamePage = () => {
           </div>
         ))}
       </div>
+      </div>
 
       {/* Pause Overlay */}
       {paused && (
-        <div className="absolute inset-0 bg-white/20 backdrop-blur-sm flex items-center justify-center z-20 mt-20">
+        <div className="absolute inset-0 bg-white/20 backdrop-blur-sm flex items-center justify-center z-20 mt-15">
           <div className="text-center">
             <p className="text-4xl font-bold text-white mb-4">PAUSED</p>
             <p className="text-lg text-white/80">
@@ -262,21 +267,23 @@ const SnakeGamePage = () => {
 
       {/* Score Box - in front of grid */}
       <div
-        className={`absolute top-3 left-3 px-3 py-2 rounded-lg text-sm z-10 ${
+        className={`absolute top-1 left-1/2 -translate-x-1/2 px-3 py-2 rounded-lg text-sm z-10 ${
           isBlockchainMode
             ? "bg-yellow-600/70 border border-yellow-400/50"
             : "bg-blue-700/60"
         }`}
       >
-        <p className="opacity-80">Score</p>
+       <div className="flex flex-row gap-2 items-center">
+         <p className="opacity-80 border-r border-white/20 pr-2">Score</p>
         <p className="text-white font-bold">{score}</p>
+       </div>
         {isBlockchainMode && (
           <p className="text-xs text-yellow-200 mt-1">🔗 On-Chain</p>
         )}
       </div>
 
       {/* Top-right Icons - in front of grid */}
-      <div className="absolute top-3 right-3 flex gap-2 z-10">
+      <div className="absolute  flex justify-between gap-80 mt-1.5 mx-2 z-10">
         <button
           className="bg-blue-700/60 p-1.5 rounded-md hover:bg-blue-700"
           onClick={() => setPaused(!paused)}
@@ -291,34 +298,36 @@ const SnakeGamePage = () => {
         </button>
       </div>
 
-      {/* Control Buttons - in front of grid */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-1 z-10">
-        <button
-          className="bg-blue-600 hover:bg-blue-700 p-2 rounded-full text-white"
-          onClick={() => setDirection({ x: 0, y: -1 })}
-        >
-          <IoMdArrowUp size={16} />
-        </button>
-        <div className="flex gap-2">
+      {/* Control Buttons - Modern Design */}
+      <div className="py-4 bg-[#0F172A] -mt-3 ">
+        <div className="flex flex-col items-center gap-2">
           <button
-            className="bg-blue-600 hover:bg-blue-700 p-2 rounded-full text-white"
-            onClick={() => setDirection({ x: -1, y: 0 })}
+            className="bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 p-4 rounded-2xl text-white shadow-lg shadow-blue-500/30 active:scale-95 transition-all"
+            onClick={() => setDirection({ x: 0, y: -1 })}
           >
-            <IoMdArrowDropleft size={16} />
+            <IoMdArrowUp size={24} />
           </button>
+          <div className="flex gap-25">
+            <button
+              className="bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 p-4 rounded-2xl text-white shadow-lg shadow-blue-500/30 active:scale-95 transition-all"
+              onClick={() => setDirection({ x: -1, y: 0 })}
+            >
+              <IoMdArrowDropleft size={24} />
+            </button>
+            <button
+              className="bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 p-4 rounded-2xl text-white shadow-lg shadow-blue-500/30 active:scale-95 transition-all"
+              onClick={() => setDirection({ x: 1, y: 0 })}
+            >
+              <IoMdArrowDropright size={24} />
+            </button>
+          </div>
           <button
-            className="bg-blue-600 hover:bg-blue-700 p-2 rounded-full text-white"
-            onClick={() => setDirection({ x: 1, y: 0 })}
+            className="bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 p-4 rounded-2xl text-white shadow-lg shadow-blue-500/30 active:scale-95 transition-all"
+            onClick={() => setDirection({ x: 0, y: 1 })}
           >
-            <IoMdArrowDropright size={16} />
+            <IoMdArrowDown size={24} />
           </button>
         </div>
-        <button
-          className="bg-blue-600 hover:bg-blue-700 p-2 rounded-full text-white"
-          onClick={() => setDirection({ x: 0, y: 1 })}
-        >
-          <IoMdArrowDown size={16} />
-        </button>
       </div>
 
       {/* Cancel Modal */}

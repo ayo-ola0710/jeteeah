@@ -98,20 +98,21 @@ const Skins = () => {
   ];
 
   return (
-    <div className="bg-[#0F172A] h-full flex flex-col">
-      <div className="flex gap-23 items-center pt-7">
+    <div className="bg-[#0F172A] min-h-screen flex flex-col">
+      <div className="flex gap-15 items-center pt-5 border-b border-[#1B2A4E] pb-3 ">
         <BsArrowLeft
           className="w-6 h-6 text-white ml-8 cursor-pointer"
           onClick={() => router.back()}
         />
-        <p className="font-space text-xl font-medium">Snake Skins</p>
-      </div>
-      <div className="flex justify-end mr-7 mt-3">
-        <p className="flex items-center gap-2 bg-[#1B2A4E99] p-1 rounded-3xl w-25 ">
+        <p className="font-space text-lg font-medium">Snake Skins</p>
+        <div className="flex justify-end mr-7 mt-3">
+        <p className="flex items-center gap-2 bg-[#1B2A4E99] p-1 rounded-3xl w-20 ">
           <LuCoins className="w-6 h-6 text-[#FF1414] ml-2" />
           <p>{totalPoints.toLocaleString()}</p>
         </p>
       </div>
+      </div>
+
 
       {loading && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">

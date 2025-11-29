@@ -2,6 +2,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HiOutlineTrophy } from "react-icons/hi2";
+import { MdOutlineSwipe } from "react-icons/md";
+import { RiProhibited2Line } from "react-icons/ri";
 import { LuCoins } from "react-icons/lu";
 import { FaPlay } from "react-icons/fa";
 import { BsPalette } from "react-icons/bs";
@@ -16,41 +18,55 @@ const Start = () => {
   const { wallet } = useLineraWallet();
 
   return (
-    <div className="bg-[#0F172A] h-full pb-10">
-      <div className="flex flex-col justify-center items-center h-30">
-        <p className="font-space text-4xl font-medium">JETEEAH</p>
-        <div className="font-space text-[12px] flex items-center gap-15 pt-5">
-          <p>Modern Snake</p>
-          <li>Web 3 Powerd</li>
+    <div className="bg-[#0F172A] min-h-screen pb-10">
+      {/* Header Section */}
+      <div className="flex flex-col justify-center items-center pt-8 pb-6">
+        <p className="font-space text-5xl font-bold tracking-tight">JETEEAH</p>
+        <p className="text-gray-400 text-sm mt-2">Modern Snake Game</p>
+        <div className="mt-3 px-4 py-1.5 bg-linear-to-r from-purple-600 to-blue-600 rounded-full shadow-lg shadow-purple-500/30">
+          <p className="text-xs font-semibold">⛓️ Web3 Powered</p>
         </div>
       </div>
-      <div className="flex flex-col justify-center items-center">
-        <div className="flex gap-8">
-          <Card className="bg-[#1B2A4E99] border-none font-raleway w-35 text-white  text-center">
-            <CardHeader>
-              <HiOutlineTrophy className="w-6 h-6 text-[#FDC200] ml-8 " />
-              <CardTitle className="text-sm">High Score</CardTitle>
+
+      {/* Stats Cards */}
+      <div className="flex flex-col justify-center items-center mt-4">
+        <div className="flex gap-4">
+          <Card className="bg-[#1B2A4E99] border-none font-raleway w-36 text-white text-center rounded-xl backdrop-blur-sm">
+            <CardHeader className="pb-2">
+              <div className="flex justify-center">
+                <HiOutlineTrophy className="w-8 h-8 text-[#FDC200]" />
+              </div>
+              <CardTitle className="text-xs text-gray-400 font-normal">
+                High Score
+              </CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-xl -mt-7">{highScore}</p>
+            <CardContent className="pt-0">
+              <p className="text-3xl font-bold">{highScore}</p>
             </CardContent>
           </Card>
-          <Card className="bg-[#1B2A4E99] border-none font-raleway w-35 text-white  text-center">
-            <CardHeader>
-              <LuCoins className="w-6 h-6 text-[#FF1414] ml-8 " />
-              <CardTitle className="text-sm">Tokens</CardTitle>
+
+          <Card className="bg-[#1B2A4E99] border-none font-raleway w-36 text-white text-center rounded-xl backdrop-blur-sm">
+            <CardHeader className="pb-1">
+              <div className="flex justify-center">
+                <LuCoins className="w-8 h-8 text-[#FF1414]" />
+              </div>
+              <CardTitle className="text-xs text-gray-400 font-normal">
+                Tokens
+              </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0 ">
               {isBlockchainMode && wallet.connected ? (
                 <>
-                  <p className="text-xl -mt-7">
+                  <p className="text-3xl font-bold ">
                     {totalPoints.toLocaleString()}
                   </p>
-                  <p className="text-xs text-green-400 mt-1">Blockchain</p>
+                  <p className="text-xs text-green-400 mt-1 font-medium">
+                    🔗 Blockchain
+                  </p>
                 </>
               ) : (
                 <>
-                  <p className="text-sm -mt-7 text-gray-400">Connect</p>
+                  <p className="text-lg text-gray-400">Connect</p>
                   <p className="text-xs text-gray-500 mt-1">wallet</p>
                 </>
               )}
@@ -58,39 +74,57 @@ const Start = () => {
           </Card>
         </div>
       </div>
+
+      {/* Action Buttons */}
       <div className="flex flex-col justify-center items-center pt-10 space-y-5">
         <Button
-          className=" py-6.5 bg-[#FF1414] flex gap-5 w-80 hover:bg-[#f76f6f] cursor-pointer hover:scale-105 "
+          className="py-6.5 rounded-full bg-linear-to-r from-[#FF1414] to-[#CC0000] flex gap-3 w-77 hover:scale-105 transition-all shadow-lg shadow-red-500/30 border-none"
           onClick={() => router.push("/game")}
         >
-          <FaPlay className="" />
-          <p>Start Game</p>
+          <FaPlay className="text-lg" />
+          <span className="text-lg font-semibold">Start Game</span>
         </Button>
-        <div className="flex gap-8">
+
+        <div className="flex gap-4">
           <Button
-            className=" py-6.5 bg-white  flex gap-3 w-35 cursor-pointer hover:scale-105 hover:bg-gray-200"
+            className="py-6.5 rounded-full bg-white flex gap-2 w-36 cursor-pointer hover:scale-105 hover:bg-gray-100 transition-all shadow-md"
             onClick={() => router.push("/skin")}
           >
-            <BsPalette className="w-15 h-15 text-black" />
-            <p className="text-[#FF1414]">Skin</p>
+            <BsPalette className="w-5 h-5 text-black" />
+            <span className="text-[#FF1414] font-semibold">Skins</span>
           </Button>
           <Button
-            className=" py-6.5 bg-white  flex gap-3 w-35 cursor-pointer hover:scale-105 hover:bg-gray-200"
+            className="py-6.5 rounded-full bg-white flex gap-2 w-36 cursor-pointer hover:scale-105 hover:bg-gray-100 transition-all shadow-md"
             onClick={() => router.push("/reward")}
           >
-            <HiOutlineTrophy className="w-15 h-15 text-black" />
-            <p className="text-[#FF1414]">Reward</p>
+            <HiOutlineTrophy className="w-5 h-5 text-black" />
+            <span className="text-[#FF1414] font-semibold">Rewards</span>
           </Button>
         </div>
       </div>
-      <div className="flex flex-col justify-center items-center mt-15 ">
-        <p className="text-sm font-space">Use arrow key or swipe to move </p>
-        <div className="font-space text-[12px] flex items-center gap-12 pt-1">
-          <p>Eat</p>
-          <li>Grow longer</li>
-          <li>Earn Token </li>
+
+      {/* Instructions */}
+      <footer className="flex flex-col items-center pb-2 mt-10 text-xs mx-8">
+        <div className="w-full rounded-[20px] bg-white/5 p-2 text-center">
+          <h3 className="font-bold ">How to Play</h3>
+          <div className="mt-3 grid grid-cols-3 gap-2 text-white">
+            <div className="flex flex-col items-center gap-1">
+              <span className="border border-white rounded-full p-2">
+                <MdOutlineSwipe className="text-lg" />
+              </span>
+              <p className="text-xs">Swipe</p>
+            </div>
+            <div className="flex flex-col items-center gap-1">
+              <span className="border border-white rounded-full p-4"></span>
+              <p className="text-xs">Eat</p>
+            </div>
+            <div className="flex flex-col items-center gap-1">
+              <RiProhibited2Line className="text-3xl" />
+              <p className="text-xs">Avoid</p>
+            </div>
+          </div>
         </div>
-      </div>
+      </footer>
     </div>
   );
 };
