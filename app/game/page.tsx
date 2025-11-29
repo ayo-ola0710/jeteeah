@@ -200,7 +200,7 @@ const SnakeGamePage = () => {
       <div className="flex-1 flex items-center justify-center bg-[#0F172A] relative mt">
         {/* Game grid - fixed size */}
         <div
-          className="relative border-b border-gray-800 mt-12"
+          className="relative border-b border-gray-800 mt-15"
           style={{
             width: boardWidth,
             height: boardHeight,
@@ -267,7 +267,7 @@ const SnakeGamePage = () => {
 
       {/* Score Box - in front of grid */}
       <div
-        className={`absolute top-1 left-1/2 -translate-x-1/2 px-3 py-2 rounded-lg text-sm z-10 ${
+        className={`absolute top-2 left-1/2 -translate-x-1/2 px-3 py-2 rounded-lg text-sm z-10 ${
           isBlockchainMode
             ? "bg-yellow-600/70 border border-yellow-400/50"
             : "bg-blue-700/60"
@@ -283,7 +283,7 @@ const SnakeGamePage = () => {
       </div>
 
       {/* Top-right Icons - in front of grid */}
-      <div className="absolute  flex justify-between gap-80 mt-1.5 mx-2 z-10">
+      <div className="absolute flex justify-between gap-3 mt-3 mx-2 z-10">
         <button
           className="bg-blue-700/60 p-1.5 rounded-md hover:bg-blue-700"
           onClick={() => setPaused(!paused)}
