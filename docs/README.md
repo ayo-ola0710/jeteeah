@@ -122,7 +122,7 @@ See [QUICKSTART.md](./QUICKSTART.md) for a 5-minute setup guide.
 
 - **[QUICKSTART.md](./QUICKSTART.md)** - Get started in 5 minutes
 - **[SETUP.md](./SETUP.md)** - Comprehensive setup and development guide
-- **[backend/README.md](./backend/README.md)** - Smart contract documentation
+- **[backend/README.md](../backend/README.md)** - Smart contract documentation
 
 ## 🎮 How to Play
 
