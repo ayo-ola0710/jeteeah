@@ -1,0 +1,32 @@
+[project]
+name = "jeteeah-snake"
+version = "0.1.0"
+authors = ["Jeteeah Team"]
+
+[application]
+name = "snake-game"
+description = "Blockchain-powered Snake game on Linera"
+
+[contract]
+path = "backend"
+build_command = "cargo build --release --target wasm32-unknown-unknown"
+
+[service]
+path = "backend"
+build_command = "cargo build --release --target wasm32-unknown-unknown"
+
+[frontend]
+path = "."
+build_command = "pnpm build"
+dev_command = "pnpm dev"
+
+[network]
+default = "local"
+
+[network.local]
+rpc_url = "http://localhost:8080"
+faucet_url = "http://localhost:8081"
+
+[network.testnet]
+rpc_url = "https://testnet.linera.io"
+faucet_url = "https://faucet.testnet.linera.io"

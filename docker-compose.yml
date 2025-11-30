@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  linera-node:
+    image: lineraio/linera:latest
+    container_name: jeteeah-linera-node
+    ports:
+      - "8080:8080"
+      - "9000:9000"
+    volumes:
+      - linera-data:/root/.linera
+      - ./backend:/app/backend
+    environment:
+      - RUST_LOG=info
+      - LINERA_WALLET=/root/.linera/wallet.json
+      - LINERA_STORAGE=rocksdb:/root/.linera/db
+    command: >
+      sh -c "
+        linera net up --testing-prng-seed 37 &&
+        linera service --port 8080
+      "
+    networks:
+      - linera-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  linera-faucet:
+    image: lineraio/linera:latest
+    container_name: jeteeah-faucet
+    ports:
+      - "8081:8081"
+    depends_on:
+      - linera-node
+    environment:
+      - RUST_LOG=info
+    command: linera faucet --port 8081
+    networks:
+      - linera-network
+
+volumes:
+  linera-data:
+    driver: local
+
+networks:
+  linera-network:
+    driver: bridge
