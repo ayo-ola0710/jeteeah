@@ -10,6 +10,7 @@
     "setup:local": "chmod +x scripts/*.sh && ./scripts/setup-local.sh",
     "build:backend": "chmod +x scripts/build-backend.sh && ./scripts/build-backend.sh",
     "deploy:local": "chmod +x scripts/deploy-local.sh && ./scripts/deploy-local.sh",
+    "deploy:testnet": "chmod +x scripts/deploy-testnet.sh && ./scripts/deploy-testnet.sh",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f",
