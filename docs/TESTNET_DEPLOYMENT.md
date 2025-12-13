@@ -2,6 +2,8 @@
 
 This guide explains how to deploy Jeteeah to Linera's Testnet Conway and connect your frontend to the live blockchain.
 
+> ⚠️ **Important Note**: As of December 2025, the public Linera Testnet Conway may not be available. If you encounter DNS resolution errors for `testnet.linera.io` or `faucet.testnet.linera.io`, this is expected. Please use the local development setup instead, or check [Linera Discord](https://discord.gg/linera) for updates on testnet availability.
+
 ## Prerequisites
 
 ### Required Software
@@ -37,11 +39,37 @@ cargo --version
 rustc --version
 ```
 
-## Quick Deployment
+## Deployment Options
 
-### Option 1: Automated Deployment (Recommended)
+### Option 1: Local Development Network (Currently Recommended)
 
-We've created an automated script that handles the entire deployment process:
+Since the public testnet may not be available, use the local Linera node:
+
+```bash
+# Start local Linera node
+npm run setup:local
+
+# Build and deploy contract locally
+npm run build:backend
+npm run deploy:local
+
+# Start frontend
+npm run dev
+```
+
+Update `.env.local` with the Chain ID and App ID from the deployment output, keeping the local endpoint:
+
+```bash
+NEXT_PUBLIC_LINERA_ENDPOINT=http://localhost:8080
+NEXT_PUBLIC_CHAIN_ID=<your_local_chain_id>
+NEXT_PUBLIC_APP_ID=<your_local_app_id>
+NEXT_PUBLIC_WALLET_MOCK=true
+NEXT_PUBLIC_ENABLE_BLOCKCHAIN=true
+```
+
+### Option 2: Testnet Deployment (When Available)
+
+When the public testnet becomes available, use the automated script:
 
 ```bash
 npm run deploy:testnet
@@ -58,9 +86,27 @@ This script will:
 
 **Follow the on-screen instructions to complete setup.**
 
-### Option 2: Manual Deployment
+### Checking Testnet Availability
 
-If you prefer manual control or the automated script fails:
+Before attempting testnet deployment, verify the testnet is accessible:
+
+```bash
+# Check if testnet RPC is accessible
+curl -I https://testnet.linera.io
+
+# Check if faucet is accessible
+curl -I https://faucet.testnet.linera.io
+```
+
+If you get "Could not resolve host" errors, the testnet is not currently available. Use local development instead.
+
+For testnet status updates:
+- Check [Linera Discord](https://discord.gg/linera) #announcements
+- Check [Linera Documentation](https://linera.dev)
+
+### Option 3: Manual Testnet Deployment
+
+If the testnet is available and you prefer manual control:
 
 #### Step 1: Initialize Wallet
 
