@@ -18,6 +18,8 @@ npm run dev
 
 🌐 **Deploy to Testnet**: See [TESTNET_DEPLOYMENT.md](./docs/TESTNET_DEPLOYMENT.md) to connect to Linera Testnet Conway.
 
+📊 **Blockchain Status**: See [BLOCKCHAIN_STATUS.md](./BLOCKCHAIN_STATUS.md) for integration status and infrastructure details.
+
 ## 🚀 Features
 
 ### Blockchain-Powered Gameplay
