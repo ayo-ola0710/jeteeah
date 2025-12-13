@@ -7,6 +7,7 @@ Your Jeteeah app has been successfully configured to connect to Linera Testnet C
 ## What Was Implemented
 
 ### 1. Automated Deployment Script ✅
+
 - **File**: `scripts/deploy-testnet.sh`
 - **Command**: `npm run deploy:testnet`
 - **Features**:
@@ -19,7 +20,9 @@ Your Jeteeah app has been successfully configured to connect to Linera Testnet C
   - Generated `.env.local` configuration
 
 ### 2. Comprehensive Documentation ✅
+
 - **TESTNET_DEPLOYMENT.md**: 400+ lines of deployment guide
+
   - Prerequisites and installation
   - Step-by-step deployment instructions
   - Configuration verification
@@ -34,6 +37,7 @@ Your Jeteeah app has been successfully configured to connect to Linera Testnet C
   - Common issues with solutions
 
 ### 3. Network Validation Components ✅
+
 - **File**: `components/ConnectionStatus.tsx`
 - **Components**:
   - `ConnectionStatus`: Shows current network (Local/Testnet/Mainnet)
@@ -41,11 +45,13 @@ Your Jeteeah app has been successfully configured to connect to Linera Testnet C
   - `TestnetBadge`: Prominent badge when connected to testnet
 
 ### 4. Environment Configuration ✅
+
 - **Updated `.env.example`**: Proper variable names with testnet examples
 - **Enhanced `lib/linera-client.ts`**: Better logging and validation
 - **Added `package.json` script**: `npm run deploy:testnet`
 
 ### 5. Documentation Updates ✅
+
 - **README.md**: Added testnet deployment link
 - **QUICKSTART.md**: Already references proper setup
 - **SETUP.md**: General development guide
@@ -74,6 +80,7 @@ npm run dev
 ### Full Version
 
 See:
+
 - `DEPLOY_CHECKLIST.md` for step-by-step checklist
 - `docs/TESTNET_DEPLOYMENT.md` for comprehensive guide
 
@@ -90,9 +97,11 @@ After deployment, your app will:
 ## What This Solves
 
 ### Original Feedback:
+
 > "On cursory inspection doesn't appear to connect to Testnet Conway"
 
 ### Solution Provided:
+
 1. ✅ **Automated deployment** to Testnet Conway
 2. ✅ **Clear instructions** for testnet connection
 3. ✅ **Visual indicators** showing testnet connection
@@ -103,6 +112,7 @@ After deployment, your app will:
 ## File Changes Summary
 
 ### New Files Created (7)
+
 1. `scripts/deploy-testnet.sh` - Automated deployment script
 2. `docs/TESTNET_DEPLOYMENT.md` - Full deployment guide
 3. `components/ConnectionStatus.tsx` - Network validation UI
@@ -111,12 +121,14 @@ After deployment, your app will:
 6. `SUMMARY.md` - This file
 
 ### Modified Files (4)
+
 1. `.env.example` - Updated with testnet configuration
 2. `package.json` - Added `deploy:testnet` script
 3. `lib/linera-client.ts` - Enhanced logging
 4. `README.md` - Added testnet deployment link
 
 ### Git Commits (2)
+
 1. `db132c6` - "Add Testnet Conway deployment support"
 2. `d5cb463` - "Add quick deployment checklist for Testnet Conway"
 
@@ -127,11 +139,13 @@ All changes pushed to GitHub ✅
 Before running `npm run deploy:testnet`, ensure:
 
 1. **Linera CLI installed**:
+
    ```bash
    curl https://install.linera.dev | bash
    ```
 
 2. **Rust toolchain**:
+
    ```bash
    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
    rustup target add wasm32-unknown-unknown
@@ -200,9 +214,9 @@ NEXT_PUBLIC_ENABLE_BLOCKCHAIN=true
 
 ```javascript
 // Check configuration
-console.log('Endpoint:', process.env.NEXT_PUBLIC_LINERA_ENDPOINT);
-console.log('Chain ID:', process.env.NEXT_PUBLIC_CHAIN_ID);
-console.log('Mock Mode:', process.env.NEXT_PUBLIC_WALLET_MOCK);
+console.log("Endpoint:", process.env.NEXT_PUBLIC_LINERA_ENDPOINT);
+console.log("Chain ID:", process.env.NEXT_PUBLIC_CHAIN_ID);
+console.log("Mock Mode:", process.env.NEXT_PUBLIC_WALLET_MOCK);
 
 // Expected output:
 // Endpoint: https://testnet.linera.io
@@ -211,6 +225,7 @@ console.log('Mock Mode:', process.env.NEXT_PUBLIC_WALLET_MOCK);
 ```
 
 ### Visual Indicators:
+
 - Green "🌐 TESTNET Conway" badge (top-right)
 - Network status shows "Testnet Conway"
 - No configuration warnings
