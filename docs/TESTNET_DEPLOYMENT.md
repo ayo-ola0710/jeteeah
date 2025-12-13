@@ -7,21 +7,24 @@ This guide explains how to deploy Jeteeah to Linera's Testnet Conway and connect
 ### Required Software
 
 1. **Linera CLI** - Install the Linera command-line tool:
+
    ```bash
    curl https://install.linera.dev | bash
    ```
 
 2. **Rust & Cargo** - Required for compiling the smart contract:
+
    ```bash
    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
    rustup target add wasm32-unknown-unknown
    ```
 
 3. **Docker** (Optional) - Only needed for local development:
+
    ```bash
    # Ubuntu/Debian
    sudo apt-get install docker.io docker-compose
-   
+
    # macOS
    brew install docker docker-compose
    ```
@@ -45,6 +48,7 @@ npm run deploy:testnet
 ```
 
 This script will:
+
 1. ✅ Build your smart contract
 2. ✅ Initialize your Linera wallet (if needed)
 3. ✅ Request testnet tokens from faucet
@@ -61,10 +65,14 @@ If you prefer manual control or the automated script fails:
 #### Step 1: Initialize Wallet
 
 ```bash
-linera wallet init --with-new-chain --faucet https://faucet.testnet.linera.io
+# Initialize wallet
+linera wallet init --faucet https://faucet.testnet.linera.io
+
+# Request a chain from testnet faucet
+linera wallet request-chain --faucet https://faucet.testnet.linera.io --set-default
 ```
 
-This creates a new wallet and chain on Testnet Conway with initial tokens.
+This creates a new wallet and requests a chain on Testnet Conway with initial tokens.
 
 #### Step 2: Build the Smart Contract
 
@@ -127,6 +135,7 @@ console.log('Mock Mode:', process.env.NEXT_PUBLIC_WALLET_MOCK);
 ```
 
 Expected output:
+
 ```
 Endpoint: https://testnet.linera.io
 Chain ID: e476187f... (64 characters)
@@ -166,13 +175,13 @@ linera query-chain YOUR_CHAIN_ID
 
 ### Environment Variables Explained
 
-| Variable | Local Development | Testnet Conway | Required |
-|----------|------------------|----------------|----------|
-| `NEXT_PUBLIC_LINERA_ENDPOINT` | `http://localhost:8080` | `https://testnet.linera.io` | ✅ Yes |
-| `NEXT_PUBLIC_CHAIN_ID` | (from local deploy) | (from testnet deploy) | ✅ Yes |
-| `NEXT_PUBLIC_APP_ID` | (from local deploy) | (from testnet deploy) | ✅ Yes |
-| `NEXT_PUBLIC_WALLET_MOCK` | `true` | `false` | ✅ Yes |
-| `NEXT_PUBLIC_ENABLE_BLOCKCHAIN` | `true` | `true` | ✅ Yes |
+| Variable                        | Local Development       | Testnet Conway              | Required |
+| ------------------------------- | ----------------------- | --------------------------- | -------- |
+| `NEXT_PUBLIC_LINERA_ENDPOINT`   | `http://localhost:8080` | `https://testnet.linera.io` | ✅ Yes   |
+| `NEXT_PUBLIC_CHAIN_ID`          | (from local deploy)     | (from testnet deploy)       | ✅ Yes   |
+| `NEXT_PUBLIC_APP_ID`            | (from local deploy)     | (from testnet deploy)       | ✅ Yes   |
+| `NEXT_PUBLIC_WALLET_MOCK`       | `true`                  | `false`                     | ✅ Yes   |
+| `NEXT_PUBLIC_ENABLE_BLOCKCHAIN` | `true`                  | `true`                      | ✅ Yes   |
 
 ### Network Configuration (linera.toml)
 
@@ -189,6 +198,7 @@ This configuration is already set in your `linera.toml` file.
 ### Error: "Linera CLI not found"
 
 **Solution:**
+
 ```bash
 curl https://install.linera.dev | bash
 source ~/.bashrc  # or ~/.zshrc
@@ -198,6 +208,7 @@ linera --version
 ### Error: "No wallet found"
 
 **Solution:**
+
 ```bash
 linera wallet init --with-new-chain --faucet https://faucet.testnet.linera.io
 ```
@@ -205,9 +216,10 @@ linera wallet init --with-new-chain --faucet https://faucet.testnet.linera.io
 ### Error: "Insufficient funds"
 
 **Solution:**
+
 ```bash
-# Request more testnet tokens
-linera faucet --network testnet
+# Request a new chain with tokens from faucet
+linera wallet request-chain --faucet https://faucet.testnet.linera.io
 
 # Check your balance
 linera wallet show
@@ -216,16 +228,19 @@ linera wallet show
 ### Error: "Failed to connect to endpoint"
 
 **Check 1:** Verify testnet is accessible:
+
 ```bash
 curl https://testnet.linera.io
 ```
 
 **Check 2:** Verify your `.env.local` settings:
+
 ```bash
 cat .env.local
 ```
 
 **Check 3:** Restart development server:
+
 ```bash
 # Stop current server (Ctrl+C)
 npm run dev
@@ -236,6 +251,7 @@ npm run dev
 This means the Chain ID or App ID is incorrect.
 
 **Solution:**
+
 1. Check deployment output for correct IDs
 2. Verify `.env.local` has correct values
 3. Ensure no typos (IDs are 64 hexadecimal characters)
@@ -243,10 +259,12 @@ This means the Chain ID or App ID is incorrect.
 ### Error: "Wallet connection failed"
 
 **For Mock Mode (Development):**
+
 - Set `NEXT_PUBLIC_WALLET_MOCK=true` in `.env.local`
 - Restart server
 
 **For Real Wallet (Testnet):**
+
 - Install Linera wallet browser extension
 - Create/import wallet in extension
 - Ensure wallet is connected to Testnet Conway
@@ -257,6 +275,7 @@ This means the Chain ID or App ID is incorrect.
 **Error: "wasm32-unknown-unknown not installed"**
 
 **Solution:**
+
 ```bash
 rustup target add wasm32-unknown-unknown
 ```
@@ -264,6 +283,7 @@ rustup target add wasm32-unknown-unknown
 **Error: "cargo: command not found"**
 
 **Solution:**
+
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source ~/.cargo/env
@@ -274,11 +294,13 @@ source ~/.cargo/env
 **Error: "Query failed" or "Network error"**
 
 **Check 1:** Verify endpoint is correct:
+
 ```bash
 echo $NEXT_PUBLIC_LINERA_ENDPOINT
 ```
 
 **Check 2:** Test GraphQL endpoint directly:
+
 ```bash
 curl -X POST https://testnet.linera.io/chains/YOUR_CHAIN_ID/applications/YOUR_APP_ID \
   -H "Content-Type: application/json" \
@@ -292,23 +314,26 @@ curl -X POST https://testnet.linera.io/chains/YOUR_CHAIN_ID/applications/YOUR_AP
 If you've set `NEXT_PUBLIC_WALLET_MOCK=false` but mock mode is still active:
 
 1. **Clear browser cache:**
+
    - Press `Ctrl+Shift+R` (force refresh)
    - Or clear localStorage: F12 → Application → Local Storage → Clear
 
 2. **Verify environment variable:**
+
    ```bash
    grep WALLET_MOCK .env.local
    # Should show: NEXT_PUBLIC_WALLET_MOCK=false
    ```
 
 3. **Restart dev server:**
+
    ```bash
    npm run dev
    ```
 
 4. **Check in browser console:**
    ```javascript
-   console.log('Mock:', process.env.NEXT_PUBLIC_WALLET_MOCK);
+   console.log("Mock:", process.env.NEXT_PUBLIC_WALLET_MOCK);
    // Should show: false
    ```
 
@@ -317,6 +342,7 @@ If you've set `NEXT_PUBLIC_WALLET_MOCK=false` but mock mode is still active:
 ### Deploy Frontend to Vercel
 
 1. **Push your code to GitHub:**
+
    ```bash
    git add .
    git commit -m "Configure for Testnet Conway"
@@ -324,11 +350,13 @@ If you've set `NEXT_PUBLIC_WALLET_MOCK=false` but mock mode is still active:
    ```
 
 2. **Connect to Vercel:**
+
    - Go to [vercel.com](https://vercel.com)
    - Import your repository
    - Add environment variables from `.env.local`
 
 3. **Configure Environment Variables in Vercel:**
+
    - Navigate to: Project Settings → Environment Variables
    - Add each variable:
      - `NEXT_PUBLIC_LINERA_ENDPOINT` = `https://testnet.linera.io`
@@ -344,12 +372,14 @@ If you've set `NEXT_PUBLIC_WALLET_MOCK=false` but mock mode is still active:
 ### Other Hosting Platforms
 
 **Netlify:**
+
 ```bash
 netlify deploy --prod
 # Add environment variables in Netlify dashboard
 ```
 
 **AWS Amplify, Cloudflare Pages, etc.:**
+
 - Follow platform-specific deployment guides
 - Always add the environment variables from `.env.local`
 
@@ -384,8 +414,8 @@ linera query-chain YOUR_CHAIN_ID
 # Query application
 linera query-application YOUR_APP_ID
 
-# Request testnet tokens
-linera faucet --network testnet
+# Request testnet chain with tokens
+linera wallet request-chain --faucet https://faucet.testnet.linera.io
 
 # View recent blocks
 linera query-chain YOUR_CHAIN_ID --blocks 10

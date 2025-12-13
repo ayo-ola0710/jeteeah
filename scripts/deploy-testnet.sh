@@ -60,12 +60,12 @@ echo ""
 
 # Check if wallet is initialized for testnet
 echo "🔍 Checking wallet configuration..."
-WALLET_INFO=$(linera wallet show 2>&1 || echo "")
+WALLET_INFO=$(linera wallet show 2>&1)
 
-if [ -z "$WALLET_INFO" ] || [[ $WALLET_INFO == *"No wallet"* ]]; then
+if [[ $WALLET_INFO == *"file is empty or does not exist"* ]] || [[ $WALLET_INFO == *"No wallet"* ]]; then
     echo -e "${YELLOW}⚠️  No wallet found. Initializing wallet for testnet...${NC}"
     echo ""
-    echo "This will create a new chain on Testnet Conway."
+    echo "This will initialize your Linera wallet and request a chain from Testnet Conway."
     read -p "Continue? (y/n) " -n 1 -r
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
@@ -73,22 +73,31 @@ if [ -z "$WALLET_INFO" ] || [[ $WALLET_INFO == *"No wallet"* ]]; then
         exit 1
     fi
     
-    linera wallet init --with-new-chain --faucet https://faucet.testnet.linera.io
+    # Initialize wallet with testnet faucet
+    echo "Initializing wallet..."
+    linera wallet init --faucet https://faucet.testnet.linera.io
     
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✓ Wallet initialized${NC}"
+        echo ""
+        
+        # Request a chain from the faucet
+        echo "💰 Requesting chain from testnet faucet..."
+        linera wallet request-chain --faucet https://faucet.testnet.linera.io --set-default
+        
+        if [ $? -eq 0 ]; then
+            echo -e "${GREEN}✓ Chain created on testnet${NC}"
+        else
+            echo -e "${YELLOW}⚠️  Could not request chain from faucet${NC}"
+            echo "You may need to request it manually: linera wallet request-chain --faucet https://faucet.testnet.linera.io"
+        fi
     else
         echo -e "${RED}❌ Wallet initialization failed${NC}"
         exit 1
     fi
+else
+    echo -e "${GREEN}✓ Wallet configured${NC}"
 fi
-
-echo -e "${GREEN}✓ Wallet configured${NC}"
-echo ""
-
-# Request testnet tokens if needed
-echo "💰 Requesting testnet tokens from faucet..."
-linera faucet --network testnet || echo -e "${YELLOW}⚠️  Could not request tokens (you may already have some)${NC}"
 echo ""
 
 # Deploy to testnet

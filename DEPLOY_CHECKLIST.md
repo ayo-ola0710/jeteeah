@@ -9,6 +9,7 @@ Follow these steps to deploy Jeteeah to Linera Testnet Conway.
 - [ ] WASM target installed: `rustup target list | grep wasm32`
 
 If any are missing:
+
 ```bash
 # Install Linera CLI
 curl https://install.linera.dev | bash
@@ -29,6 +30,7 @@ npm run deploy:testnet
 ```
 
 This script will:
+
 1. Build your smart contract
 2. Initialize your wallet (if needed)
 3. Request testnet tokens
@@ -77,13 +79,14 @@ Visit http://localhost:3000 - you're now connected to Testnet Conway! 🎉
 Press F12, then in Console tab:
 
 ```javascript
-console.log('Endpoint:', process.env.NEXT_PUBLIC_LINERA_ENDPOINT);
-console.log('Chain ID:', process.env.NEXT_PUBLIC_CHAIN_ID);
-console.log('App ID:', process.env.NEXT_PUBLIC_APP_ID);
-console.log('Mock Mode:', process.env.NEXT_PUBLIC_WALLET_MOCK);
+console.log("Endpoint:", process.env.NEXT_PUBLIC_LINERA_ENDPOINT);
+console.log("Chain ID:", process.env.NEXT_PUBLIC_CHAIN_ID);
+console.log("App ID:", process.env.NEXT_PUBLIC_APP_ID);
+console.log("Mock Mode:", process.env.NEXT_PUBLIC_WALLET_MOCK);
 ```
 
 Expected:
+
 - Endpoint: `https://testnet.linera.io`
 - Chain ID: 64-character hex string
 - App ID: 64-character hex string
@@ -108,31 +111,38 @@ Look for the green "🌐 TESTNET Conway" badge in the top-right corner.
 ## Common Issues
 
 ### "Linera CLI not found"
+
 ```bash
 curl https://install.linera.dev | bash
 source ~/.bashrc
 ```
 
 ### "No wallet found"
+
 ```bash
-linera wallet init --with-new-chain --faucet https://faucet.testnet.linera.io
+linera wallet init --faucet https://faucet.testnet.linera.io
+linera wallet request-chain --faucet https://faucet.testnet.linera.io --set-default
 ```
 
 ### "Insufficient funds"
+
 ```bash
-linera faucet --network testnet
+linera wallet request-chain --faucet https://faucet.testnet.linera.io
 ```
 
 ### "Wallet extension not found"
+
 - Install Linera wallet browser extension
 - Or temporarily enable mock mode: `NEXT_PUBLIC_WALLET_MOCK=true`
 
 ### "Environment variables not loading"
+
 1. Ensure `.env.local` exists in project root
 2. Restart dev server: Stop with Ctrl+C, then `npm run dev`
 3. Clear browser cache: Ctrl+Shift+R
 
 ### "Chain ID or App ID not working"
+
 1. Verify IDs are 64 hexadecimal characters (0-9, a-f)
 2. No spaces or quotes in `.env.local`
 3. Check deployment output for correct values
@@ -155,6 +165,7 @@ git push
 ```
 
 Environment variables to add in Vercel:
+
 - `NEXT_PUBLIC_LINERA_ENDPOINT` = `https://testnet.linera.io`
 - `NEXT_PUBLIC_CHAIN_ID` = (your chain ID)
 - `NEXT_PUBLIC_APP_ID` = (your app ID)
@@ -170,8 +181,8 @@ linera wallet show
 # Check your chain
 linera query-chain YOUR_CHAIN_ID
 
-# Request more tokens
-linera faucet --network testnet
+# Request more tokens (creates new chain)
+linera wallet request-chain --faucet https://faucet.testnet.linera.io
 
 # Query application state
 curl https://testnet.linera.io/chains/CHAIN_ID/applications/APP_ID
