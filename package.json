@@ -10,11 +10,12 @@
     "setup:local": "chmod +x scripts/*.sh && ./scripts/setup-local.sh",
     "build:backend": "chmod +x scripts/build-backend.sh && ./scripts/build-backend.sh",
     "deploy:local": "chmod +x scripts/deploy-local.sh && ./scripts/deploy-local.sh",
-    "docker:up": "docker-compose up -d",
-    "docker:down": "docker-compose down",
-    "docker:logs": "docker-compose logs -f",
-    "docker:reset": "docker-compose down -v && docker-compose up -d",
-    "linera:info": "docker-compose exec linera-node linera wallet show"
+    "deploy:testnet": "chmod +x scripts/deploy-testnet.sh && ./scripts/deploy-testnet.sh",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "docker:reset": "docker compose down -v && docker compose up -d",
+    "linera:info": "docker compose exec linera-node linera wallet show"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",
@@ -24,7 +25,7 @@
     "graphql": "^16.12.0",
     "graphql-request": "^7.3.1",
     "lucide-react": "^0.548.0",
-    "next": "16.0.0",
+    "next": "16.0.10",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-icons": "^5.5.0",

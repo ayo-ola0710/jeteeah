@@ -14,7 +14,11 @@ npm run deploy:local
 npm run dev
 ```
 
-📖 **Full Guide**: See [QUICKSTART.md](./QUICKSTART.md) for detailed setup instructions.
+📖 **Full Guide**: See [QUICKSTART.md](./docs/QUICKSTART.md) for detailed setup instructions.
+
+🌐 **Deploy to Testnet**: See [TESTNET_DEPLOYMENT.md](./docs/TESTNET_DEPLOYMENT.md) to connect to Linera Testnet Conway.
+
+📊 **Blockchain Status**: See [BLOCKCHAIN_STATUS.md](./BLOCKCHAIN_STATUS.md) for integration status and infrastructure details.
 
 ## 🚀 Features
 
@@ -123,8 +127,9 @@ See [QUICKSTART.md](./QUICKSTART.md) for a 5-minute setup guide.
 
 ## 📚 Documentation
 
-- **[QUICKSTART.md](./QUICKSTART.md)** - Get started in 5 minutes
-- **[SETUP.md](./SETUP.md)** - Comprehensive setup and development guide
+- **[QUICKSTART.md](./docs/QUICKSTART.md)** - Get started in 5 minutes
+- **[SETUP.md](./docs/SETUP.md)** - Comprehensive setup and development guide
+- **[TESTNET_DEPLOYMENT.md](./docs/TESTNET_DEPLOYMENT.md)** - Deploy to Linera Testnet Conway
 - **[backend/README.md](./backend/README.md)** - Smart contract documentation
 
 ## 🎮 How to Play

@@ -18,7 +18,7 @@ if ! docker info > /dev/null 2>&1; then
 fi
 
 echo -e "${BLUE}📦 Starting Linera local node...${NC}"
-docker-compose up -d
+docker compose up -d
 
 echo -e "${BLUE}⏳ Waiting for Linera node to be ready...${NC}"
 sleep 5
@@ -27,7 +27,7 @@ sleep 5
 MAX_RETRIES=30
 RETRY_COUNT=0
 while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-    if docker-compose ps | grep -q "healthy"; then
+    if docker compose ps | grep -q "healthy"; then
         echo -e "${GREEN}✅ Linera node is healthy${NC}"
         break
     fi
@@ -37,7 +37,7 @@ while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
 done
 
 if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
-    echo -e "${YELLOW}⚠️  Node didn't become healthy in time. Check logs with: docker-compose logs${NC}"
+    echo -e "${YELLOW}⚠️  Node didn't become healthy in time. Check logs with: docker compose logs${NC}"
     exit 1
 fi
 
@@ -49,6 +49,6 @@ echo "2. Deploy the contract: npm run deploy:local"
 echo "3. Start the frontend: npm run dev"
 echo ""
 echo -e "${BLUE}🔍 Useful commands:${NC}"
-echo "- View logs: docker-compose logs -f"
-echo "- Stop node: docker-compose down"
-echo "- Reset data: docker-compose down -v"
+echo "- View logs: docker compose logs -f"
+echo "- Stop node: docker compose down"
+echo "- Reset data: docker compose down -v"
