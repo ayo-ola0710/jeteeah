@@ -1,9 +1,9 @@
-import Start from "./start/page";
+import Home from "./home/page";
 
 const page = () => {
   return (
     <div>
-      <Start />
+      <Home />
     </div>
   );
 };
