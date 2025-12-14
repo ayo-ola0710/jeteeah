@@ -1,34 +1,39 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FaArrowLeft, FaCopy, FaCheck, FaCrown, FaUser } from "react-icons/fa";
-
-// Mock player data (will be replaced with real WebSocket data later)
-interface Player {
-  id: string;
-  name: string;
-  isReady: boolean;
-  isHost: boolean;
-}
+import { useMultiplayer } from "@/hooks/useMultiplayer";
 
 const RoomPage = () => {
   const params = useParams();
   const router = useRouter();
   const roomCode = params.code as string;
-
-  // Mock state (will be replaced with WebSocket state)
-  const [players, setPlayers] = useState<Player[]>([
-    { id: "1", name: "You", isReady: false, isHost: true },
-  ]);
-  const [isReady, setIsReady] = useState(false);
+  
+  const { roomState, toggleReady, startGame, leaveRoom, connected, socket } = useMultiplayer();
   const [copied, setCopied] = useState(false);
+  const [isStarting, setIsStarting] = useState(false);
 
-  const currentPlayer = players.find((p) => p.id === "1"); // Mock current player
+  // Show loading if no room state yet
+  if (!roomState) {
+    return (
+      <div className="bg-[#0F172A] min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading room...</p>
+          <p className="text-sm text-gray-500 mt-2">Room: {roomCode}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Get current player info using socket ID
+  const currentPlayer = roomState.players.find((p) => p.id === socket?.id);
   const isHost = currentPlayer?.isHost || false;
-  const allReady = players.every((p) => p.isReady);
-  const canStart = players.length >= 2 && allReady && isHost;
+  const isReady = currentPlayer?.isReady || false;
+  const allReady = roomState.players.every((p) => p.isReady);
+  const canStart = roomState.players.length >= 2 && allReady && isHost && roomState.status === 'waiting';
 
   const copyRoomCode = () => {
     navigator.clipboard.writeText(roomCode);
@@ -36,27 +41,35 @@ const RoomPage = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const toggleReady = () => {
-    const newReadyState = !isReady;
-    setIsReady(newReadyState);
-    // Update current player's ready state
-    setPlayers(
-      players.map((p) => (p.id === "1" ? { ...p, isReady: newReadyState } : p))
-    );
+  const handleToggleReady = () => {
+    toggleReady();
   };
 
-  const startGame = () => {
-    if (canStart) {
-      router.push(`/multiplayer/game?room=${roomCode}`);
+  const handleStartGame = () => {
+    if (canStart && !isStarting) {
+      setIsStarting(true);
+      startGame();
     }
   };
+
+  const handleLeave = () => {
+    leaveRoom();
+    router.push("/multiplayer");
+  };
+
+  // Listen for game start
+  useEffect(() => {
+    if (roomState.status === 'playing') {
+      router.push(`/multiplayer/game?room=${roomCode}`);
+    }
+  }, [roomState.status, roomCode, router]);
 
   return (
     <div className="bg-[#0F172A] min-h-screen flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-800">
         <button
-          onClick={() => router.push("/multiplayer")}
+          onClick={handleLeave}
           className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
         >
           <FaArrowLeft />
@@ -80,6 +93,13 @@ const RoomPage = () => {
         <div className="w-10" /> {/* Spacer */}
       </div>
 
+      {/* Connection Status */}
+      {!connected && (
+        <div className="bg-yellow-900/20 border-b border-yellow-500/30 p-3 text-center">
+          <p className="text-yellow-400 text-sm">⚠️ Reconnecting...</p>
+        </div>
+      )}
+
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center px-4 py-8">
         <div className="max-w-2xl w-full">
@@ -95,18 +115,18 @@ const RoomPage = () => {
           <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold">
-                Players ({players.length}/{players.length})
+                Players ({roomState.players.length}/8)
               </h2>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                 <span className="text-sm text-gray-400">
-                  {players.filter((p) => p.isReady).length} Ready
+                  {roomState.players.filter((p) => p.isReady).length} Ready
                 </span>
               </div>
             </div>
 
             <div className="space-y-3">
-              {players.map((player) => (
+              {roomState.players.map((player) => (
                 <div
                   key={player.id}
                   className={`flex items-center justify-between p-4 rounded-xl transition-colors ${
@@ -135,7 +155,7 @@ const RoomPage = () => {
                           </div>
                         )}
                       </div>
-                      {player.id === "1" && (
+                      {player.id === currentPlayer?.id && (
                         <span className="text-xs text-gray-400">(You)</span>
                       )}
                     </div>
@@ -153,7 +173,7 @@ const RoomPage = () => {
               ))}
 
               {/* Empty Slots */}
-              {[...Array(Math.max(0, 2 - players.length))].map((_, i) => (
+              {[...Array(Math.max(0, 2 - roomState.players.length))].map((_, i) => (
                 <div
                   key={`empty-${i}`}
                   className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-dashed border-white/20"
@@ -171,7 +191,7 @@ const RoomPage = () => {
           <div className="space-y-3">
             {!isHost && (
               <Button
-                onClick={toggleReady}
+                onClick={handleToggleReady}
                 className={`w-full py-7 rounded-xl font-semibold text-lg shadow-lg border-none ${
                   isReady
                     ? "bg-gray-700 hover:bg-gray-600"
@@ -185,22 +205,24 @@ const RoomPage = () => {
             {isHost && (
               <>
                 <Button
-                  onClick={startGame}
-                  disabled={!canStart}
+                  onClick={handleStartGame}
+                  disabled={!canStart || isStarting}
                   className={`w-full py-7 rounded-xl font-semibold text-lg shadow-lg border-none ${
-                    canStart
+                    canStart && !isStarting
                       ? "bg-linear-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 shadow-purple-500/30"
                       : "bg-gray-700 opacity-50 cursor-not-allowed"
                   }`}
                 >
-                  {players.length < 2
+                  {isStarting
+                    ? "Starting Game..."
+                    : roomState.players.length < 2
                     ? "Waiting for Players..."
                     : !allReady
                     ? "Waiting for All Ready..."
                     : "Start Game"}
                 </Button>
 
-                {!canStart && players.length >= 2 && (
+                {!canStart && roomState.players.length >= 2 && (
                   <p className="text-center text-sm text-gray-400">
                     All players must be ready to start
                   </p>
