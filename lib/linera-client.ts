@@ -17,6 +17,8 @@ const config: BlockchainConfig = {
 // Validate configuration
 if (!config.chainId || !config.appId) {
   console.warn('⚠️ Linera blockchain configuration incomplete. Check environment variables.');
+  console.warn('Current endpoint:', config.endpoint);
+  console.warn('Mock wallet enabled:', config.enableMockWallet);
 }
 
 // Construct the GraphQL endpoint URL

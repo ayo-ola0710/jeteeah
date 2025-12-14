@@ -13,7 +13,7 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 # Check if Docker is running
-if ! docker-compose ps | grep -q "jeteeah-linera-node"; then
+if ! docker compose ps | grep -q "jeteeah-linera-node"; then
     echo -e "${RED}❌ Linera node is not running. Start it with: npm run setup:local${NC}"
     exit 1
 fi
@@ -27,7 +27,7 @@ fi
 echo -e "${BLUE}📦 Publishing contract to Linera...${NC}"
 
 # Execute deployment in Docker container
-docker-compose exec linera-node bash -c "
+docker compose exec linera-node bash -c "
     cd /app/backend && \
     linera project publish-and-create --wait-for-outgoing-messages
 "
