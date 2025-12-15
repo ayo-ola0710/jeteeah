@@ -102,7 +102,7 @@ const Gameover = () => {
         </Button>
         <Button
           className="py-7 bg-white text-[#FF1414] flex gap-3 w-full hover:scale-105 hover:bg-gray-100 transition-all shadow-md rounded-full"
-          onClick={() => router.push("/")}
+          onClick={() => router.push("/start")}
         >
           <IoHomeOutline className="text-black text-xl" />
           <span className="text-lg font-semibold">Main Menu</span>

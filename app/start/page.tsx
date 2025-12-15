@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useGame } from "../contexts/GameContext";
 import { useLineraWallet } from "@/hooks/useLineraWallet";
+import { FaHouse } from "react-icons/fa6";
 
 const Start = () => {
   const router = useRouter();
@@ -22,10 +23,6 @@ const Start = () => {
       {/* Header Section */}
       <div className="flex flex-col justify-center items-center pt-8 pb-6">
         <p className="font-space text-5xl font-bold tracking-tight">JETEEAH</p>
-        <p className="text-gray-400 text-sm mt-2">Modern Snake Game</p>
-        <div className="mt-3 px-4 py-1.5 bg-linear-to-r from-purple-600 to-blue-600 rounded-full shadow-lg shadow-purple-500/30">
-          <p className="text-xs font-semibold">⛓️ Web3 Powered</p>
-        </div>
       </div>
 
       {/* Stats Cards */}
@@ -83,6 +80,13 @@ const Start = () => {
         >
           <FaPlay className="text-lg" />
           <span className="text-lg font-semibold">Start Game</span>
+        </Button>
+        <Button
+          className="py-6.5 rounded-full bg-linear-to-r from-[#FF1414] to-[#CC0000] flex gap-3 w-77 hover:scale-105 transition-all shadow-lg shadow-red-500/30 border-none"
+          onClick={() => router.push("/")}
+        >
+          <FaHouse className="text-lg" />
+          <span className="text-lg font-semibold">Home</span>
         </Button>
 
         <div className="flex gap-4">
