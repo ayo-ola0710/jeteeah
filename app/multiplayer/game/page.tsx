@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FiPause } from "react-icons/fi";
 import { RiCloseLine } from "react-icons/ri";
@@ -24,7 +24,7 @@ const PLAYER_COLORS = [
   { bg: "bg-cyan-500", shadow: "shadow-cyan-500/30", name: "Cyan" },
 ];
 
-const MultiplayerGamePage = () => {
+const GameContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const roomCode = searchParams.get("room");
@@ -394,4 +394,20 @@ const MultiplayerGamePage = () => {
   );
 };
 
+const MultiplayerGamePage = () => {
+  return (
+    <Suspense fallback={
+      <div className="bg-[#0F172A] min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading game...</p>
+        </div>
+      </div>
+    }>
+      <GameContent />
+    </Suspense>
+  );
+};
+
 export default MultiplayerGamePage;
+
